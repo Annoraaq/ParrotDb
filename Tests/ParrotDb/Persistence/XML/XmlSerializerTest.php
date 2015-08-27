@@ -94,7 +94,7 @@ class XmlSerializerTest extends \PHPUnit_Framework_TestCase {
         $pClass = $classMapper->createClass($author);
         $is = $this->serializer->serializeClass($pClass);
 
-        $this->assertEquals($expected, $this->serializer->serializeClass($classMapper->createClass($author)));
+        $this->assertEquals($expected, $this->serializer->serializeClass($classMapper->createClass($author))->saveXML());
         $oid = $objectMapper->makePersistanceReady($author);
         $obj = null;
         foreach ($objectMapper->getOIdToPhpId() as $pObj) {
@@ -178,11 +178,13 @@ class XmlSerializerTest extends \PHPUnit_Framework_TestCase {
          . "</object>\n";
 
         
-        $os = $this->serializer->serialize($obj);
+        $os = $this->serializer->serialize($obj)->saveXML();
         
+               echo "###" . $os;
+   
         $this->assertEquals($exp, $os);
         
-        echo $os;
+ 
 
     }
 

@@ -15,17 +15,24 @@ use \ParrotDb\Utils\PUtils;
  */
 class XmlSerializer implements Serializer {
     
-    public function serialize(PObject $pObject) {
-        $xml = new \DOMDocument();
+    
+    
+    
+    
+    public function serialize(PObject $pObject, $xml = null, $elem = null) {
+        
+        if ($xml == null) {
+            $xml = new \DOMDocument();
+        }
+
         $object = $xml->createElement( "object" );
+
         $object->appendChild($xml->createElement("id", $pObject->getObjectId()->getId()));
      
         $attributes = $xml->createElement("attributes");
         
         foreach ($pObject->getAttributes() as $attr) {
-            if ($attr->getName() == "partner") {
-                echo getType($attr->getValue());
-            }
+ 
             if (PUtils::isArray($attr->getValue())) {
                 $attrElem = $xml->createElement("attribute");
                 $attrElem->appendChild($xml->createElement("name", $attr->getName()));
@@ -53,21 +60,13 @@ class XmlSerializer implements Serializer {
         }
            $object->appendChild($attributes);
         
-//        $fields = $xml->createElement("fields");
-//        $class->appendChild($fields);
-//        foreach ($pClass->getFields() as $field) {
-//            $fields->appendChild($xml->createElement("field", $field));
-//        }
-//        
-//        $superclasses = $xml->createElement("superclasses");
-//        $class->appendChild($superclasses);
-//        foreach ($pClass->getSuperclasses() as $superclass) {
-//            $superclasses->appendChild($xml->createElement("superclass", $superclass));
-//        }
-//        
-        $xml->appendChild($object);
+   if ($elem != null) {
+        $elem->appendChild($object);
+   } else {
+       $xml->appendChild($object);
+   }
         
-        return $xml->saveXML();
+        return $xml;
     }
     
     private function processArray($xml, $attr) {
@@ -102,8 +101,11 @@ class XmlSerializer implements Serializer {
         return $xml->createElement("objectId", $attr->getId());
     }
     
-    public function serializeClass(PClass $pClass) {
-        $xml = new \DOMDocument();
+    public function serializeClass(PClass $pClass, $xml = null) {
+        
+        if ($xml == null) {
+            $xml = new \DOMDocument();
+        }
         $class = $xml->createElement( "class" );
         $class->appendChild($xml->createElement("name", $pClass->getName()));
         
@@ -121,7 +123,7 @@ class XmlSerializer implements Serializer {
         
         $xml->appendChild($class);
         
-        return $xml->saveXML();
-    }
+        return $xml;
+    } 
 
 }
