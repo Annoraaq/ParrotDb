@@ -40,10 +40,14 @@ class XmlFileManager {
          
         //if ($this->isFileNew) {
             $xml = new \DomDocument();
-            $xml = $this->xmlSerializer->serializeClass($pObject->getClass(), $xml);
+            $this->xmlSerializer->setDomDocument($xml);
+            $class = $this->xmlSerializer->serializeClass($pObject->getClass(), $xml);
+            $xml->appendChild($class);
             $objects = $xml->createElement("objects");
             $xml->appendChild($objects);
-            $xml = $this->xmlSerializer->serialize($pObject,$xml, $objects);
+            $object = $this->xmlSerializer->serialize($pObject);
+            $objects->appendChild($object);
+            $xml->appendChild($objects);
         //}
         //$xml = $this->xmlSerializer->serialize($pObject);
         fwrite($this->file, $xml->saveXML());
