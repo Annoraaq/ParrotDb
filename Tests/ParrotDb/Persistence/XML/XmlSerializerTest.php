@@ -24,6 +24,7 @@ class XmlSerializerTest extends \PHPUnit_Framework_TestCase {
     
     protected $session;
 
+
     /**
      * Sets up the fixture, for example, opens a network connection.
      * This method is called before a test is executed.
@@ -68,6 +69,7 @@ class XmlSerializerTest extends \PHPUnit_Framework_TestCase {
         $author = $this->createTestAuthor();
         $classMapper = new ClassMapper();
         $objectMapper = new ObjectMapper($this->session);
+        $classSerializer = new XmlClassSerializer();
         
         $expected = "<?xml version=\"1.0\"?>\n"
          . "<class>"
@@ -96,8 +98,11 @@ class XmlSerializerTest extends \PHPUnit_Framework_TestCase {
 //        $is = $this->serializer->serializeClass($pClass, $xml);
 //
 //        
-        $this->serializer->setDomDocument($xml);
-        $class = $this->serializer->serializeClass($classMapper->createClass($author));
+        $classSerializer->setDomDocument($xml);
+        //$this->serializer->setDomDocument($xml);
+        //$class = $this->serializer->serializeClass($classMapper->createClass($author));
+        $classSerializer->setPClass($pClass);
+        $class = $classSerializer->serialize();
         $xml->appendChild($class);
         $this->assertEquals($expected, $xml->saveXML());
         $oid = $objectMapper->makePersistanceReady($author);
@@ -198,7 +203,11 @@ class XmlSerializerTest extends \PHPUnit_Framework_TestCase {
 
         $xml = new \DOMDocument;
         $this->serializer->setDomDocument($xml);
-        $object = $this->serializer->serialize($obj);
+        $objectSerializer = new XmlObjectSerializer();
+        $objectSerializer->setDomDocument($xml);
+        $objectSerializer->setPObject($obj);
+        $object = $objectSerializer->createObjectElement($obj);
+     
         $xml->appendChild($object);
         $os = $xml->saveXML();
                echo "###" . $os;
