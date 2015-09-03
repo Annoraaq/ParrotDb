@@ -64,7 +64,8 @@ class XmlSerializer implements Serializer {
      * @return \DOMDocument
      */
     public function serializeClass(PClass $pClass) {
-        return $this->classSerializer->serializeClass($pClass);
+        $this->classSerializer->setPClass($pClass);
+        return $this->classSerializer->serialize();
     } 
     
     

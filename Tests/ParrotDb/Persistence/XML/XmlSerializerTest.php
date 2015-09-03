@@ -40,7 +40,7 @@ class XmlSerializerTest extends \PHPUnit_Framework_TestCase {
      * This method is called after a test is executed.
      */
     protected function tearDown() {
-        
+        $this->session->close();
     }
     
     private function createTestAuthor() {
@@ -62,7 +62,6 @@ class XmlSerializerTest extends \PHPUnit_Framework_TestCase {
 
     /**
      * @covers ParrotDb\Persistence\Xml\XmlSerializer::serialize
-     * @todo   Implement testSerialize().
      */
     public function testSerializeClass() {
         
@@ -94,7 +93,7 @@ class XmlSerializerTest extends \PHPUnit_Framework_TestCase {
          . "</class>\n";
         
         $pClass = $classMapper->createClass($author);
-        $xml = new \DOMDocument;
+        $xml = new \DOMDocument();
 //        $is = $this->serializer->serializeClass($pClass, $xml);
 //
 //        
@@ -215,6 +214,11 @@ class XmlSerializerTest extends \PHPUnit_Framework_TestCase {
         $this->assertEquals($exp, $os);
         
  
+
+    }
+    
+    public function testAddObject() {
+
 
     }
 

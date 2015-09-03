@@ -13,7 +13,7 @@ use \ParrotDb\Query\Constraint\PResultSet;
  * @author J. Baum
  */
 interface Database {
-
+ 
     /**
      * Fetches an object by object id
      * 
