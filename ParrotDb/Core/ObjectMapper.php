@@ -119,16 +119,7 @@ class ObjectMapper {
 
         
         if (PUtils::isObject($value)) {
-            if ($property->getName() == "partner") {
-            echo "ASDASD\n";
-        }
             $value = $this->makePersistanceReady($value);
-             if ($property->getName() == "partner") {
-            if ($value == null) {
-                echo "es ist null!";
-            }
-        }
-            
         } else if (PUtils::isArray($value)) {
             $value = $this->persistArray($value);
         }
@@ -190,13 +181,11 @@ class ObjectMapper {
     public function makePersistanceReady($object) {
 
         if ($this->isAlreadyPersistedInMemory($object)) {
-            echo "return existing";
             return $this->oIdToPHPId[spl_object_hash($object)]->getObjectId();
         }
         
         $id = $this->session->assignObjectId();
         $this->addToPersistedMemory($object, new PObject($id));
-//        echo "\nFirst:" . spl_object_hash($object) . "\n";
 
         $pClass = $this->classMapper->createClass($object);
 
@@ -205,9 +194,7 @@ class ObjectMapper {
             $pClass,
             $id
         );
-//        echo "create"
-//
-//        echo "\nSecond:" . spl_object_hash($object) . "\n";
+
         $this->addToPersistedMemory($object, $pObject);
 
         return $pObject->getObjectId();
