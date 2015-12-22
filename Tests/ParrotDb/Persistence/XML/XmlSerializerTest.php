@@ -32,7 +32,6 @@ class XmlSerializerTest extends \PHPUnit_Framework_TestCase {
     protected function setUp() {
         $this->session = PSessionFactory::createSession("Testfile.db");
         $this->pm = $this->session->createPersistenceManager();
-        $this->serializer = new XmlSerializer;
     }
 
     /**
@@ -201,21 +200,23 @@ class XmlSerializerTest extends \PHPUnit_Framework_TestCase {
 
 
         $xml = new \DOMDocument;
-        $this->serializer->setDomDocument($xml);
         $objectSerializer = new XmlObjectSerializer();
         $objectSerializer->setDomDocument($xml);
         $objectSerializer->setPObject($obj);
-        $object = $objectSerializer->createObjectElement($obj);
+        $object = $objectSerializer->serialize();
+
      
         $xml->appendChild($object);
         $os = $xml->saveXML();
-               echo "###" . $os;
+              // echo "###" . $os;
    
         $this->assertEquals($exp, $os);
         
  
 
     }
+    
+    
     
     public function testAddObject() {
 

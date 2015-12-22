@@ -32,4 +32,11 @@ class PObjectId implements Comparable {
         return false;
     }
     
+    public function __toString() {
+        if ($this->id == null) {
+            return "null";
+        }
+        return "" . $this->id;
+    }
+    
 }

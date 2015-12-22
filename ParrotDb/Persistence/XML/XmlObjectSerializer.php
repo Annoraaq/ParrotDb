@@ -45,7 +45,11 @@ class XmlObjectSerializer {
          $this->domDocument = $domDocument;
     }
     
-    public function createObjectElement() {
+    public function getDomDocument() {
+        return $this->domDocument;
+    }
+    
+    public function serialize() {
         $object = $this->domDocument->createElement("object");
 
         $object->appendChild($this->createIdElement());

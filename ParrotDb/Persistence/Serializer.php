@@ -11,6 +11,6 @@ use \ParrotDb\ObjectModel\PObject;
  */
 interface Serializer {
     
-    public function serialize(PObject $pObject);
+    public function serialize();
     
 }

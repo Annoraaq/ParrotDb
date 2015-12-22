@@ -126,8 +126,6 @@ class PMemoryDatabase implements Database {
             
         
         return $amount;
-        
-        return 0;
     }
 
     /**
