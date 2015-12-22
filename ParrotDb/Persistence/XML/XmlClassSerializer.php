@@ -52,7 +52,9 @@ class XmlClassSerializer {
      */
     public function serialize() {
         $class = $this->domDocument->createElement( "class" );
-        $class->appendChild($this->domDocument->createElement("name", $this->pClass->getName()));
+        $class->appendChild(
+            $this->domDocument->createElement("name", $this->pClass->getName())
+        );
         $class->appendChild($this->serializeFields());
         $class->appendChild($this->serializeSuperclasses());
 
@@ -63,7 +65,9 @@ class XmlClassSerializer {
         $fields = $this->domDocument->createElement("fields");
         
         foreach ($this->pClass->getFields() as $field) {
-            $fields->appendChild($this->domDocument->createElement("field", $field));
+            $fields->appendChild(
+                $this->domDocument->createElement("field", $field)
+            );
         }
         
         return $fields;
@@ -73,7 +77,9 @@ class XmlClassSerializer {
         $superclasses = $this->domDocument->createElement("superclasses");
         
         foreach ($this->pClass->getSuperclasses() as $superclass) {
-            $superclasses->appendChild($this->domDocument->createElement("superclass", $superclass));
+            $superclasses->appendChild(
+                $this->domDocument->createElement("superclass", $superclass)
+            );
         }
         
         return $superclasses;

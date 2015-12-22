@@ -6,7 +6,7 @@ namespace ParrotDb\Persistence;
  *
  * @author J. Baum
  */
-class Deserializer {
+interface Deserializer {
     
     public function deserialize();
     

@@ -31,6 +31,9 @@ class XmlFileManager {
     
     protected $fileName;
     
+    /**
+     * 
+     */
     public function __construct() {
         $this->resetDomDocument();
         $this->fileExists = false;
@@ -83,10 +86,6 @@ class XmlFileManager {
         
         fwrite($this->file, $this->domDocument->saveXML());
         
-        // :debug
-        echo $this->domDocument->saveXML();
-        echo '###';
-        
         fclose($this->file);
     }
     
@@ -131,6 +130,12 @@ class XmlFileManager {
         return null;
     }
 
+    /**
+     * 
+     * @param PObjectId $oid
+     * @return PObject
+     * @throws PException
+     */
     public function fetch(PObjectId $oid) {
         
         $this->domDocument = new \DOMDocument();
@@ -154,8 +159,6 @@ class XmlFileManager {
     
     private function fetchFrom($className, PObjectId $oid) {
         $this->loadXml($className);
-        
-        $this->openFile($className);
 
         $objects = $this->domDocument->getElementsByTagName("object");
         
@@ -168,74 +171,22 @@ class XmlFileManager {
                 break;
             }
         }
-        
-        fclose($this->file);
-        
+
         return $foundObject;
         
     }
     
     private function deserialize(\DomElement $object) {
         
-        $classElem = $this->getFirstElementByName2($this->domDocument, "class");
-        
-        $pClass = new \ParrotDb\ObjectModel\PClass(
-            $this->getFirstElementByName2(
-                $classElem,
-                "name"
-            )->nodeValue
-        );
-        
-        $fieldsElem = $this->getFirstElementByName2($classElem, "fields");
-        foreach ($fieldsElem->getElementsByTagName("field") as $field) {
-            $pClass->addField($field->nodeValue);
-        }
+        $classDeserializer = new XmlClassDeserializer($this->domDocument);
+        $pClass = $classDeserializer->deserialize();
   
-        
-        $id = $this->getFirstElementByName2($object, "id")->nodeValue;
-        $pObject = new PObject(new PObjectId($id));
-        $pObject->setClass($pClass);
-        
-        
-        $attributes = $this->getFirstElementByName2($object, "attributes")->getElementsByTagName("attribute");
-        foreach ($attributes as $attribute) {
-            
-            $valElem = $this->getFirstElementByName2($attribute, "value");
-            if ($valElem->firstChild != null && $valElem->firstChild->nodeName == "objectId") {
-                $value = new PObjectId($valElem->firstChild->nodeValue);
-            } else if ($valElem->firstChild != null && $valElem->firstChild->nodeName == "array") {
-                $value = $this->parseArray($valElem->firstChild);
-            } else {
-                $value = $valElem->nodeValue;
-            }
-            
-            $pObject->addAttribute($this->getFirstElementByName2($attribute, "name")->nodeValue, $value);
-        }
-        
-        return $pObject;
+        $objectDeserializer = new XmlObjectDeserializer($object, $pClass);
+        return $objectDeserializer->deserialize();
         
     }
     
-    private function parseArray(\DOMElement $arrayElem) {
-        
-                    
-        $array = array();
-        foreach($arrayElem->getElementsByTagName("elem") as $elemElem) {
-            $key = $this->getFirstElementByName2($elemElem, "key")->nodeValue;
-            $valElem = $this->getFirstElementByName2($elemElem, "value");
-            if ($valElem->firstChild->nodeName == "objectId") {
-                $val = new PObjectId($this->getFirstElementByName2($valElem, "objectId")->nodeValue);
-            } else if ($valElem->firstChild->nodeName == "array") {
-                $val = $this->parseArray($this->getFirstElementByName2($valElem, "array"));
-            } else {
-                $val = $valElem->nodeValue; 
-            }
-            
-            $array[$key] = $val;
-        }
-        
-        return $array;
-    }
+   
     
     private function loadXml($className) {
         $this->domDocument = new \DOMDocument();
@@ -301,7 +252,9 @@ class XmlFileManager {
             } else {
                 foreach ($xml->objects->children() as $object) {
                     if (!isset($object->id)) {
-                        throw new \ParrotDb\Core\PException("XML database file is corrupt: missing <id>-tag.");
+                        throw new \ParrotDb\Core\PException(
+                            "XML database file is corrupt: missing <id>-tag."
+                        );
                     }
                     if (intval($object->id) == $oid->getId()) {
                         return true;
