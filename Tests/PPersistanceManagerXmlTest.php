@@ -3,18 +3,10 @@ namespace ParrotDb\Core;
 
 use \ParrotDb\ObjectModel\PObjectId;
 use \ParrotDb\Query\Constraint\PClassConstraint;
-use \ParrotDb\Query\Constraint\PAttributeConstraint;
-use \ParrotDb\Query\Constraint\PAndConstraint;
-use \ParrotDb\Query\Constraint\POrConstraint;
-use \ParrotDb\Query\Constraint\PNotConstraint;
-use \ParrotDb\Query\Constraint\PRelationConstraint;
-use \ParrotDb\Query\LotB\Parser\Parser;
-use \ParrotDb\Query\LotB\Tokenizer;
-use \ParrotDb\Core\ObjectMapper;
 
-require_once("../Author.php");
-require_once("../TestRec.php");
-require_once("../Publication.php");
+require_once("testclasses/Author.php");
+require_once("testclasses/TestRec.php");
+require_once("testclasses/Publication.php");
 
 
 /**

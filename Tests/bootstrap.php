@@ -9,18 +9,8 @@
 /**
  * @author J. Baum
  */
-// TODO: check include path
-//ini_set('include_path', ini_get('include_path'));
+require '../vendor/autoload.php';
 
-use \ParrotDb\Core\PAutoloader;
-
-define('ROOT_PATH', dirname(dirname(__FILE__)) . '/');
-define('CORE_PATH', ROOT_PATH . 'ParrotDb/Core/');
-
-
-echo CORE_PATH;
-require_once CORE_PATH . 'PAutoloader.php';
-
-$autoloader = new PAutoloader('ParrotDb');
-$autoloader->register();
+//$autoloader = new PAutoloader('ParrotDb');
+//$autoloader->register();
 ?>

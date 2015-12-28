@@ -1,0 +1,16 @@
+{
+    "name": "gearlab/parrotdb",
+    "description": "ParrotDb is an open source object database written in PHP and createt for small applications. It can run on servers without installing any extra software besides a standard PHP environment.",
+    "authors": [
+        {
+            "name": "Johannes Baum",
+            "email": "baum@bw-webgestaltung.de"
+        }
+    ],
+    "require": {},
+    "autoload": {
+        "psr-4": {
+            "ParrotDb\\": "ParrotDb/"
+        }
+    }
+}
