@@ -6,5 +6,8 @@ $vendorDir = dirname(dirname(__FILE__));
 $baseDir = dirname($vendorDir);
 
 return array(
+    'Symfony\\Component\\Yaml\\' => array($vendorDir . '/symfony/yaml'),
     'ParrotDb\\' => array($baseDir . '/ParrotDb'),
+    'Doctrine\\Instantiator\\' => array($vendorDir . '/doctrine/instantiator/src/Doctrine/Instantiator'),
+    'DeepCopy\\' => array($vendorDir . '/myclabs/deep-copy/src/DeepCopy'),
 );

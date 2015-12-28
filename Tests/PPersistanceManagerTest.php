@@ -35,6 +35,8 @@ class PPersistanceManagerTest extends \PHPUnit_Framework_TestCase
      */
     protected function setUp()
     {
+        
+
         $this->session = PSessionFactory::createSession("Testfile.db", PSession::DB_MEMORY);
         $this->pm = $this->session->createPersistenceManager();
         
@@ -45,6 +47,8 @@ class PPersistanceManagerTest extends \PHPUnit_Framework_TestCase
         if (file_exists("pdb/Publication.pdb")) {
             unlink("pdb/Publication.pdb");
         }
+        
+        
     }
 
     /**
@@ -781,12 +785,6 @@ class PPersistanceManagerTest extends \PHPUnit_Framework_TestCase
 
         $this->assertEquals(4, $result->size());
         $this->assertTrue($author4->equals($result->first()));
-
-
-
-       
-
-
     }
     
     
@@ -838,11 +836,12 @@ class PPersistanceManagerTest extends \PHPUnit_Framework_TestCase
         
         $this->assertEquals(2, $result->size());
         
+        
         $result = $this->pm->delete($constraint);
-        
         $this->assertEquals(2, $result);
-        
         $result = $this->pm->query($constraint);
+        
+        //var_dump($result);
         
         $this->assertEquals(0, $result->size());
     }

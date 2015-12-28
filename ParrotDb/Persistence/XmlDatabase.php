@@ -117,23 +117,21 @@ class XmlDatabase implements Database {
      * @inheritDoc
      */
     public function deleteCascade(PConstraint $constraint) {
-//        $this->constraintProcessor->setPersistedObjects($this->persistedObjects);
-//        $this->markForDeletion = [];
-//        $resultSet = $this->constraintProcessor->process($constraint);
-//        foreach ($resultSet as $elem) {
-//            $this->deleteCascadeSingle($elem);
-//        }
-//     
-//        $amount = count($this->markedForDeletion);
-//        
-//        foreach ($this->markedForDeletion as $oid) {
-//            $this->deleteSingle($oid);
-//        }
-//            
-//        
-//        return $amount;
-//        
-//        return 0;
+        $this->constraintProcessor->setPersistedObjects($this->fileManager->fetchAll());
+        $this->markForDeletion = [];
+        $resultSet = $this->constraintProcessor->process($constraint);
+        foreach ($resultSet as $elem) {
+            $this->deleteCascadeSingle($elem);
+        }
+     
+        $amount = count($this->markedForDeletion);
+        
+        foreach ($this->markedForDeletion as $pObject) {
+            $this->deleteSingle($pObject->getClass()->getName(), $pObject->getObjectId());
+        }
+            
+        
+        return $amount;
     }
 
     /**
@@ -144,18 +142,18 @@ class XmlDatabase implements Database {
      */
     private function deleteCascadeSingle(PObject $pObject) {
         
-//        if (isset($this->markedForDeletion[$pObject->getObjectId()->getId()])) {
-//            return;
-//        }
-//        $this->markedForDeletion[$pObject->getObjectId()->getId()] = $pObject->getObjectId();
-//
-//        foreach ($pObject->getAttributes() as $attr) {
-//            if ($attr->getValue() instanceof PObjectId) {
-//                $this->deleteCascadeSingle($this->fetch($attr->getValue()));
-//            } else if (PUtils::isArray($attr->getValue())) {
-//                $this->deleteCascadeArray($attr->getValue());
-//            }
-//        }
+        if (isset($this->markedForDeletion[$pObject->getObjectId()->getId()])) {
+            return;
+        }
+        $this->markedForDeletion[$pObject->getObjectId()->getId()] = $pObject;
+
+        foreach ($pObject->getAttributes() as $attr) {
+            if ($attr->getValue() instanceof PObjectId) {
+                $this->deleteCascadeSingle($this->fetch($attr->getValue()));
+            } else if (PUtils::isArray($attr->getValue())) {
+                $this->deleteCascadeArray($attr->getValue());
+            }
+        }
     }
     
     /**
@@ -164,13 +162,13 @@ class XmlDatabase implements Database {
      * @param array $arr
      */
     private function deleteCascadeArray($arr) {
-//        foreach ($arr as $val) {
-//            if (PUtils::isArray($val)) {
-//                $this->deleteCascadeArray($val);
-//            } else if ($val instanceof PObjectId) {
-//                $this->deleteCascadeSingle($this->fetch($val));
-//            }
-//        }
+        foreach ($arr as $val) {
+            if (PUtils::isArray($val)) {
+                $this->deleteCascadeArray($val);
+            } else if ($val instanceof PObjectId) {
+                $this->deleteCascadeSingle($this->fetch($val));
+            }
+        }
     }
 
 }

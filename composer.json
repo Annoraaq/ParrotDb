@@ -12,5 +12,8 @@
         "psr-4": {
             "ParrotDb\\": "ParrotDb/"
         }
+    },
+    "require-dev": {
+        "phpunit/phpunit": "dev-master"
     }
 }

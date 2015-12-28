@@ -2,9 +2,10 @@
 
 namespace ParrotDb\Persistence\Xml;
 
-use \ParrotDb\ObjectModel\PObject;
-use \ParrotDb\ObjectModel\PObjectId;
+use ParrotDb\ObjectModel\PObject;
+use ParrotDb\ObjectModel\PObjectId;
 use ParrotDb\Core\PException;
+use ParrotDb\Utils\PXmlUtils;
 
 /**
  * Description of FileManager
@@ -86,6 +87,10 @@ class XmlFileManager {
         
         fwrite($this->file, $this->domDocument->saveXML());
         
+        // :debug
+        echo PHP_EOL . "store file: " . $this->domDocument->saveXML() . PHP_EOL;
+        
+        
         fclose($this->file);
     }
     
@@ -107,9 +112,20 @@ class XmlFileManager {
     private function appendObject() {
         $firstElem = $this->getFirstElementByName("objects");
         $this->objectSerializer->setPObject($this->pObject);
+        $this->removeOldObject();
         $firstElem->appendChild(
             $this->objectSerializer->serialize()
         );
+    }
+    
+    private function removeOldObject() {
+        $objects = $this->domDocument->getElementsByTagName("object");
+        
+        foreach ($objects as $object) {
+            if (PXmlUtils::firstElemByTagName($object, "id")->nodeValue == $this->pObject->getObjectId()->getId()) {
+                PXmlUtils::firstElemByTagName($this->domDocument->firstChild, "objects")->removeChild($object);
+            }
+        }
     }
     
     private function getFirstElementByName($name) {
@@ -212,11 +228,12 @@ class XmlFileManager {
     }
     
      public function delete($className, PObjectId $oid) {
+
         $this->loadXml($className);
 
         $objectsNode = $this->getFirstElementByName("objects");
         $objects = $this->domDocument->getElementsByTagName("object");
-        
+
         foreach ($objects as $object) {
             if ($oid->getId() == $this->getFirstElementByName2($object, "id")->nodeValue) {
                 $objectsNode->removeChild($object);
@@ -225,7 +242,9 @@ class XmlFileManager {
         }
 
         $this->openFile($className);
+        
         fwrite($this->file, $this->domDocument->saveXML());
+
         
         fclose($this->file);
         
