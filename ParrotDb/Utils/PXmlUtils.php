@@ -23,6 +23,26 @@ class PXmlUtils {
     }
     
     /**
+     * Returns a list of direct child nodes with the given tag name
+     * 
+     * @param \DOMElement $domElem
+     * @param string $name
+     * @return array
+     */
+    public static function childsByTagName(\DOMElement $domElem, $name) {
+        
+        $outputList = array();
+        foreach ($domElem->childNodes as $childNode) {
+            if ($childNode->nodeName == $name) {
+                $outputList[] = $childNode;
+            }
+        }
+        
+        return $outputList;
+    }
+    
+    
+    /**
      * Checks, if the first child of the given element has the given name
      * 
      * @param \DOMElement $domElem

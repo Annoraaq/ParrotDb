@@ -3,6 +3,7 @@
 namespace ParrotDb\Persistence\Xml;
 
 use \ParrotDb\Core\PSessionFactory;
+use \ParrotDb\Core\PSession;
 use \ParrotDb\ObjectModel\PObjectId;
 use \ParrotDb\Core\ObjectMapper;
 
@@ -32,12 +33,21 @@ class XmlFileManagerTest extends \PHPUnit_Framework_TestCase {
      */
     protected function setUp() {
         $this->fileManager = new XmlFileManager;
-        $this->session = PSessionFactory::createSession("Testfile.db");
+        $this->session = PSessionFactory::createSession(
+            "Testfile.db",
+            PSession::DB_MEMORY
+        );
         $this->pm = $this->session->createPersistenceManager();
         
         if (file_exists("pdb/Author.pdb")) {
             unlink("pdb/Author.pdb");
         }
+        
+        if (file_exists("pdb/Publication.pdb")) {
+            unlink("pdb/Publication.pdb");
+        }
+        
+
     }
     
     
@@ -47,7 +57,9 @@ class XmlFileManagerTest extends \PHPUnit_Framework_TestCase {
      * This method is called after a test is executed.
      */
     protected function tearDown() {
-        $this->session->close();
+        if ($this->session != null) {
+            $this->session->close();
+        }
     }
     
     private function createTestAuthor() {
@@ -138,23 +150,23 @@ class XmlFileManagerTest extends \PHPUnit_Framework_TestCase {
         
         $this->assertTrue($this->fileManager->isObjectStored(new PObjectId(0)));
         $this->assertTrue($this->fileManager->fetch(new PObjectId(0))->equals($obj));
-//        
-//        $this->assertTrue($this->fileManager->isObjectStored(new PObjectId(0)));
-//        $this->assertFalse($this->fileManager->isObjectStored(new PObjectId(1)));
-//        
-//        $oid = $objectMapper->makePersistanceReady($author2);
-//        $obj = null;
-//        foreach ($objectMapper->getOIdToPhpId() as $pObj) {
-//            if ($pObj->getObjectId()->getId() == $oid->getId()) {
-//                $obj = $pObj;
-//                break;
-//            }
-//        }
-//
-//        $this->fileManager->storeObject($obj);
-//        
-//        $this->assertTrue($this->fileManager->isObjectStored(new PObjectId(0)));
-//        $this->assertTrue($this->fileManager->isObjectStored(new PObjectId(5)));
+        
+        $this->assertTrue($this->fileManager->isObjectStored(new PObjectId(0)));
+        $this->assertFalse($this->fileManager->isObjectStored(new PObjectId(1)));
+        
+        $oid = $objectMapper->makePersistanceReady($author2);
+        $obj = null;
+        foreach ($objectMapper->getOIdToPhpId() as $pObj) {
+            if ($pObj->getObjectId()->getId() == $oid->getId()) {
+                $obj = $pObj;
+                break;
+            }
+        }
+
+        $this->fileManager->storeObject($obj);
+        
+        $this->assertTrue($this->fileManager->isObjectStored(new PObjectId(0)));
+        $this->assertTrue($this->fileManager->isObjectStored(new PObjectId(5)));
     
     }
     

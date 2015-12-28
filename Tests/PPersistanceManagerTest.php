@@ -35,9 +35,16 @@ class PPersistanceManagerTest extends \PHPUnit_Framework_TestCase
      */
     protected function setUp()
     {
-        $this->session = PSessionFactory::createSession("Testfile.db");
+        $this->session = PSessionFactory::createSession("Testfile.db", PSession::DB_MEMORY);
         $this->pm = $this->session->createPersistenceManager();
-
+        
+                if (file_exists("pdb/Author.pdb")) {
+            unlink("pdb/Author.pdb");
+        }
+        
+        if (file_exists("pdb/Publication.pdb")) {
+            unlink("pdb/Publication.pdb");
+        }
     }
 
     /**
@@ -47,12 +54,18 @@ class PPersistanceManagerTest extends \PHPUnit_Framework_TestCase
     protected function tearDown()
     {
        PSessionFactory::closeSession("Testfile.db");
+       if (file_exists("pdb/Author.pdb")) {
+            unlink("pdb/Author.pdb");
+        }
         
+        if (file_exists("pdb/Publication.pdb")) {
+            unlink("pdb/Publication.pdb");
+        }
     }
     
 
     
-    private function createTestAuthor() {
+    protected function createTestAuthor() {
         $author = new \Author("Mr Satan", 53);
         $author->publication = new \Publication("Test");
         $author->allPublications = array();
@@ -158,7 +171,18 @@ class PPersistanceManagerTest extends \PHPUnit_Framework_TestCase
         $this->pm->commit();
 
         $authorReFetched = $this->pm->fetch(new PObjectId(0));
+        
+                
+//        echo "AUTHOR2\n";
+//       var_dump($author2);
+//        
+//        echo "AUTHOR\n";
+//       var_dump($author);
+//        echo "AUTHOR FETCHED\n";
+//       var_dump($authorReFetched);
 
+        
+        
         $this->assertTrue($author2->equals($authorReFetched));
         $this->assertFalse($author3->equals($authorReFetched));
         $this->assertFalse($author->equals($author4));
@@ -189,7 +213,9 @@ class PPersistanceManagerTest extends \PHPUnit_Framework_TestCase
         
         $result = $this->pm->query($constraint);
         
-        $this->assertEquals($result->size(), 2);
+        $this->assertEquals(2, $result->size());
+        
+
 
         $this->assertTrue($author->equals($result->first()));
     }
@@ -233,7 +259,7 @@ class PPersistanceManagerTest extends \PHPUnit_Framework_TestCase
         
         $result = $this->pm->query($constraint);
         
-        $this->assertEquals($result->size(), 2);
+        $this->assertEquals(2, $result->size());
 
     }
     
@@ -350,7 +376,7 @@ class PPersistanceManagerTest extends \PHPUnit_Framework_TestCase
 
         $result = $this->pm->query($constraint);
         
-        $this->assertEquals($result->size(), 3);
+        $this->assertEquals(3, $result->size());
         
         $constraint = new PClassConstraint("Author",
          new PRelationConstraint($this->session->getDatabase(), "allPublications", "Publication", PRelationConstraint::OP_EQ, "1",
@@ -358,7 +384,7 @@ class PPersistanceManagerTest extends \PHPUnit_Framework_TestCase
 
         $result = $this->pm->query($constraint);
         
-        $this->assertEquals($result->size(), 1);
+        $this->assertEquals(1, $result->size());
         
         $this->assertTrue($author2->equals($result->first()));
   

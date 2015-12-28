@@ -30,8 +30,16 @@ class XmlSerializerTest extends \PHPUnit_Framework_TestCase {
      * This method is called before a test is executed.
      */
     protected function setUp() {
-        $this->session = PSessionFactory::createSession("Testfile.db");
+        $this->session = PSessionFactory::createSession("Testfile.db", \ParrotDb\Core\PSession::DB_XML);
         $this->pm = $this->session->createPersistenceManager();
+        
+                if (file_exists("pdb/Author.pdb")) {
+            unlink("pdb/Author.pdb");
+        }
+        
+        if (file_exists("pdb/Publication.pdb")) {
+            unlink("pdb/Publication.pdb");
+        }
     }
 
     /**
@@ -39,7 +47,9 @@ class XmlSerializerTest extends \PHPUnit_Framework_TestCase {
      * This method is called after a test is executed.
      */
     protected function tearDown() {
-        $this->session->close();
+        if ($this->session != null) {
+            $this->session->close();
+        }
     }
     
     private function createTestAuthor() {

@@ -157,22 +157,77 @@ class XmlFileManager {
 
     }
     
+    /**
+     * 
+     * @param PObjectId $oid
+     * @return PObject
+     * @throws PException
+     */
+    public function fetchAll() {
+        
+        $this->domDocument = new \DOMDocument();
+        $dbFiles = $this->fetchDbFiles();
+        
+        $objList = array();
+        foreach ($dbFiles as $fileName) {
+            
+            $list = $this->fetchFromFile($fileName);
+            
+            foreach ($list as $item) {
+                $objList[$item->getObjectId()->getId()] = $item;
+            }
+        }
+        
+        return $objList;
+
+    }
+    
+    private function fetchFromFile($className) {
+        $this->loadXml($className);
+        $objectList = array();
+        $objects = $this->domDocument->getElementsByTagName("object");
+
+        foreach ($objects as $object) {
+            $objectList[] = $this->deserialize($object);
+        }
+
+        return $objectList;
+    }
+
     private function fetchFrom($className, PObjectId $oid) {
         $this->loadXml($className);
 
         $objects = $this->domDocument->getElementsByTagName("object");
         
-        $found = false;
         $foundObject = null;
         foreach ($objects as $object) {
             if ($oid->getId() == $this->getFirstElementByName2($object, "id")->nodeValue) {
-                $found = true;
                 $foundObject = $this->deserialize($object);
                 break;
             }
         }
 
         return $foundObject;
+        
+    }
+    
+     public function delete($className, PObjectId $oid) {
+        $this->loadXml($className);
+
+        $objectsNode = $this->getFirstElementByName("objects");
+        $objects = $this->domDocument->getElementsByTagName("object");
+        
+        foreach ($objects as $object) {
+            if ($oid->getId() == $this->getFirstElementByName2($object, "id")->nodeValue) {
+                $objectsNode->removeChild($object);
+                break;
+            }
+        }
+
+        $this->openFile($className);
+        fwrite($this->file, $this->domDocument->saveXML());
+        
+        fclose($this->file);
         
     }
     

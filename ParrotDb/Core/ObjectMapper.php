@@ -194,6 +194,7 @@ class ObjectMapper {
             $pClass,
             $id
         );
+        
 
         $this->addToPersistedMemory($object, $pObject);
 
@@ -216,10 +217,12 @@ class ObjectMapper {
         $pClass = $pObject->getClass();
 
         $name = "\\" . $pClass->getName();
+        
         $instance = new $name;
+        
+        $this->instantiationLocks[$pObject->getObjectId()->getId()] = $instance;
 
         $this->setProperties($instance, $pObject);
-
 
         return $instance;
     }
@@ -232,8 +235,11 @@ class ObjectMapper {
      */
     private function setProperties($instance, PObject $pObject) {
         $pClass = $pObject->getClass();
+        
+        
 
         foreach ($pClass->getFields() as $field) {
+            
             $property = $this->findProperty($pClass, $field);
             $property->setAccessible(true);
 
@@ -323,19 +329,20 @@ class ObjectMapper {
      */
     public function fromPObject(PObject $pObject) {
 
-        if (isset($this->instantiationLocks[$pObject->getObjectId()->getId()]) &&
-         $this->instantiationLocks[$pObject->getObjectId()->getId()] == true) {
-            return $pObject->getObjectId();
+        if (isset($this->instantiationLocks[$pObject->getObjectId()->getId()])) {
+            //return $pObject->getObjectId();
+            return $this->instantiationLocks[$pObject->getObjectId()->getId()];
         }
         
-        $this->instantiationLocks[$pObject->getObjectId()->getId()] = true;
+        
         
         $instance = $this->instantiate($pObject);
 
 
         $this->addToPersistedMemory($instance, $pObject);
 
-        $this->instantiationLocks[$pObject->getObjectId()->getId()] = false;
+        //$this->instantiationLocks[$pObject->getObjectId()->getId()] = false;
+        unset($this->instantiationLocks[$pObject->getObjectId()->getId()]);
         
         return $instance;
     }

@@ -83,6 +83,8 @@ class XmlObjectSerializer {
          )
         );
 
+        
+
         $attrVal = $this->setAttrValue(
          $attr, $this->domDocument->createElement("value")
         );
@@ -128,7 +130,7 @@ class XmlObjectSerializer {
     private function createValueElement($val) {
         if (PUtils::isArray($val)) {
             $value = $this->domDocument->createElement("value");
-            $value->appendChild($this->processArray($this->domDocument, $val));
+            $value->appendChild($this->processArray($val));
         } else if ($val instanceof PObjectId) {
             $value = $this->domDocument->createElement("value");
             $value->appendChild($this->processObjectId($val));

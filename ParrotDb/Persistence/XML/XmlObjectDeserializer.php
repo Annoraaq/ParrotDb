@@ -61,7 +61,8 @@ class XmlObjectDeserializer implements Deserializer {
 
     private function parseArray(\DOMElement $arrayElem) {
         $array = array();
-        foreach ($arrayElem->getElementsByTagName("elem") as $elemElem) {
+        
+        foreach (PXmlUtils::childsByTagName($arrayElem, "elem") as $elemElem) {
             $key = PXmlUtils::firstElemByTagName($elemElem, "key")->nodeValue;
             $valElem = PXmlUtils::firstElemByTagName($elemElem, "value");
             if (PXmlUtils::equalsFirstChildName($valElem, "objectId")) {

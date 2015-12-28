@@ -58,12 +58,16 @@ class Author extends Person {
         if ($this->age != $object->getAge()) {
             return false;
         }
-
-        if ($this->age != $object->getAge()) {
+        
+        if ($this->size != $object->size) {
             return false;
         }
 
         if (!$this->publication->equals($object->publication)) {
+            return false;
+        }
+        
+        if ($this->partner != $this && !$this->partner->equals($object->partner)) {
             return false;
         }
 
@@ -71,6 +75,7 @@ class Author extends Person {
             return false;
         }
 
+        
         foreach ($this->allPublications as $key => $val) {
             if (!isset($object->allPublications[$key])) {
                 return false;
@@ -94,7 +99,7 @@ class Author extends Person {
         if (count($this->nestedPublications) != count($object->nestedPublications)) {
             return false;
         }
-        
+
         foreach ($this->nestedPublications as $key => $val) {
             if (!isset($object->nestedPublications[$key])) {
                 return false;
@@ -112,7 +117,6 @@ class Author extends Person {
                 }
             }
         }
-
 
         return true;
     }

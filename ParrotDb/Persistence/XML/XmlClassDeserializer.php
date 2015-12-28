@@ -39,6 +39,11 @@ class XmlClassDeserializer implements Deserializer {
             $pClass->addField($field->nodeValue);
         }
         
+        $superclassesElem = PXmlUtils::firstElemByTagName($this->classElem, "superclasses");
+        foreach ($superclassesElem->getElementsByTagName("superclass") as $superclass) {
+            $pClass->addSuperclass($superclass->nodeValue);
+        }
+        
         return $pClass;
     }
     
