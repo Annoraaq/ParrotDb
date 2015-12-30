@@ -215,10 +215,10 @@ class ObjectMapper {
      */
     public function instantiate(PObject $pObject) {
         $pClass = $pObject->getClass();
-
-        $name = "\\" . $pClass->getName();
         
-        $instance = new $name;
+        $reflectionClass = new \ReflectionClass("\\" . $pClass->getName());
+
+        $instance = $reflectionClass->newInstanceWithoutConstructor();
         
         $this->instantiationLocks[$pObject->getObjectId()->getId()] = $instance;
 

@@ -32,12 +32,17 @@ class XmlFileManager {
     
     protected $fileName;
     
+    private $dbPath;
+    private $dbName;
+    
     /**
-     * 
+     * @param string $dbName
      */
-    public function __construct() {
+    public function __construct($dbName) {
         $this->resetDomDocument();
         $this->fileExists = false;
+        $this->dbPath = static::DB_PATH . $dbName . '/';
+        $this->dbName = $dbName;
     }
     
     private function resetDomDocument() {
@@ -53,15 +58,15 @@ class XmlFileManager {
     }
     
     private function toFilePath($className) {
-        return (self::DB_PATH
+        return ($this->dbPath
             . $className
             . self::DB_FILE_ENDING
         );
     }
     
     private function openFile($fileName) {
-        if (!file_exists(self::DB_PATH)) {
-            mkdir(self::DB_PATH);
+        if (!file_exists($this->dbPath)) {
+            mkdir($this->dbPath);
         }
 
         $this->file = fopen($this->toFilePath($fileName),"w");
@@ -86,9 +91,6 @@ class XmlFileManager {
         }
         
         fwrite($this->file, $this->domDocument->saveXML());
-        
-        // :debug
-        echo PHP_EOL . "store file: " . $this->domDocument->saveXML() . PHP_EOL;
         
         
         fclose($this->file);
@@ -274,15 +276,18 @@ class XmlFileManager {
     }
 
     private function isFileExistent($className) {
-        return file_exists(self::DB_PATH . $className . ".pdb");
+        return file_exists($this->dbPath . $className . ".pdb");
     }
     
     
     private function fetchDbFiles() {
-        $scanDir = scandir(self::DB_PATH);
+        $scanDir = scandir($this->dbPath);
         
         $filtered = [];
         foreach ($scanDir as $entry) {
+            if (\ParrotDb\Utils\PUtils::endsWith($entry, $this->dbName . static::DB_FILE_ENDING)) {
+                continue;
+            }
             if ($this->getFileEnding($entry) == self::DB_FILE_ENDING) {
                 $filtered[] = $this->removeFileEnding($entry);
             }
@@ -319,7 +324,7 @@ class XmlFileManager {
     
     private function isObjectStoredIn($oid, $className) {
         if ($this->isFileExistent($className)) {
-            $xml = simplexml_load_file(self::DB_PATH . $className . ".pdb");
+            $xml = simplexml_load_file($this->dbPath . $className . ".pdb");
             
             if (!isset($xml->objects)) {
                 return false;

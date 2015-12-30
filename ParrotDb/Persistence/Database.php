@@ -56,8 +56,6 @@ interface Database {
     public function delete(PConstraint $constraint);
     
 
-    
-
     /**
      * Queries and deletes from the database where the deletion cascades
      * through all connected objects.
@@ -65,5 +63,13 @@ interface Database {
      * @param PConstraint $constraint
      */
     public function deleteCascade(PConstraint $constraint);
+    
+    /**
+     * Returns the current latest object ID and increases it by one.
+     * 
+     * @return \ParrotDb\ObjectModel\PObjectId
+     */
+    public function assignObjectId();
+
     
 }

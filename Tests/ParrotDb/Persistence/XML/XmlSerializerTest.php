@@ -30,15 +30,19 @@ class XmlSerializerTest extends \PHPUnit_Framework_TestCase {
      * This method is called before a test is executed.
      */
     protected function setUp() {
-        $this->session = PSessionFactory::createSession("Testfile.db", \ParrotDb\Core\PSession::DB_XML);
+        $this->session = PSessionFactory::createSession("Testfile", \ParrotDb\Core\PSession::DB_XML);
         $this->pm = $this->session->createPersistenceManager();
         
-                if (file_exists("pdb/Author.pdb")) {
-            unlink("pdb/Author.pdb");
+        if (file_exists("pdb/Testfile/Testfile.pdb")) {
+            unlink("pdb/Testfile/Testfile.pdb");
         }
         
-        if (file_exists("pdb/Publication.pdb")) {
-            unlink("pdb/Publication.pdb");
+       if (file_exists("pdb/Testfile/Author.pdb")) {
+            unlink("pdb/Testfile/Author.pdb");
+        }
+        
+        if (file_exists("pdb/Testfile/Publication.pdb")) {
+            unlink("pdb/Testfile/Publication.pdb");
         }
     }
 

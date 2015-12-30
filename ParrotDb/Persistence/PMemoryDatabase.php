@@ -33,8 +33,11 @@ class PMemoryDatabase implements Database {
     
     protected $markedForDeletion;
     
+    private $latestObjectId;
+    
     public function __construct() {
         $this->constraintProcessor = new PMemoryConstraintProcessor();
+        $this->latestObjectId = 0;
     }
     
     /**
@@ -163,6 +166,15 @@ class PMemoryDatabase implements Database {
                 $this->deleteCascadeSingle($this->fetch($val));
             }
         }
+    }
+    
+    /**
+     * @inheritDoc
+     */
+    public function assignObjectId() {
+        $objectId = $this->latestObjectId;
+        $this->latestObjectId++;
+        return new PObjectId($objectId);
     }
 
 }

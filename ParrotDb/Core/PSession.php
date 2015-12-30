@@ -2,7 +2,6 @@
 
 namespace ParrotDb\Core;
 
-use \ParrotDb\ObjectModel\PObjectId;
 use \ParrotDb\Persistence\PMemoryDatabase;
 use \ParrotDb\Persistence\XmlDatabase;
 
@@ -16,7 +15,6 @@ class PSession {
     const DB_MEMORY = 1;
     const DB_XML = 2;
     
-    private $latestObjectId;
     
     private $filePath;
     
@@ -24,14 +22,13 @@ class PSession {
     
     public function __construct($filePath, $dbEngine) {
         $this->filePath = $filePath;
-        $this->latestObjectId = 0;
         
         switch ($dbEngine) {
             case (self::DB_MEMORY):
                 $this->database = new PMemoryDatabase();
                 break;
             case (self::DB_XML):
-                $this->database = new XmlDatabase();
+                $this->database = new XmlDatabase($this->filePath);
                 break;
             default:
                 throw new PException(
@@ -45,10 +42,13 @@ class PSession {
         return new PPersistanceManager($this);
     }
     
+    /**
+     * Returns the current latest object ID and increases it by one.
+     * 
+     * @return \ParrotDb\ObjectModel\PObjectId
+     */
     public function assignObjectId() {
-        $objectId = $this->latestObjectId;
-        $this->latestObjectId++;
-        return new PObjectId($objectId);
+        return $this->database->assignObjectId();
     }
     
     public function close() {

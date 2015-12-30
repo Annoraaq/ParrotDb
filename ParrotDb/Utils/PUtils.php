@@ -95,5 +95,22 @@ class PUtils {
         array_pop($arr);
         return $arr;
     }
+    
+    /**
+     * Checks, if $haystack ends with $needle
+     * 
+     * @param string $haystack
+     * @param string $needle
+     * @return boolean
+     */
+    public static function endsWith($haystack, $needle)
+    {
+        $length = strlen($needle);
+        if ($length == 0) {
+            return true;
+        }
+
+        return (substr($haystack, -$length) === $needle);
+    }
 
 }

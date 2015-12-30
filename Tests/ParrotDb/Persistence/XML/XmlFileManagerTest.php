@@ -32,19 +32,27 @@ class XmlFileManagerTest extends \PHPUnit_Framework_TestCase {
      * This method is called before a test is executed.
      */
     protected function setUp() {
-        $this->fileManager = new XmlFileManager;
+        $this->fileManager = new XmlFileManager("Testfile");
         $this->session = PSessionFactory::createSession(
-            "Testfile.db",
+            "Testfile",
             PSession::DB_MEMORY
         );
         $this->pm = $this->session->createPersistenceManager();
         
-        if (file_exists("pdb/Author.pdb")) {
-            unlink("pdb/Author.pdb");
+        if (file_exists("pdb/Testfile/Testfile.pdb")) {
+            unlink("pdb/Testfile/Testfile.pdb");
         }
         
-        if (file_exists("pdb/Publication.pdb")) {
-            unlink("pdb/Publication.pdb");
+       if (file_exists("pdb/Testfile/Author.pdb")) {
+            unlink("pdb/Testfile/Author.pdb");
+        }
+        
+        if (file_exists("pdb/Testfile/Publication.pdb")) {
+            unlink("pdb/Testfile/Publication.pdb");
+        }
+        
+        if (file_exists("pdb/Testfile/PrivateConstructor.pdb")) {
+            unlink("pdb/Testfile/PrivateConstructor.pdb");
         }
         
 

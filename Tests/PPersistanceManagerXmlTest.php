@@ -39,15 +39,26 @@ class PPersistanceManagerXmlTest  extends \PHPUnit_Framework_TestCase
     {
        
 
-        $this->session = PSessionFactory::createSession("Testfile.db", PSession::DB_XML);
+        $this->session = PSessionFactory::createSession("Testfile", PSession::DB_XML);
         $this->pm = $this->session->createPersistenceManager();
         
-        if (file_exists("pdb/Author.pdb")) {
-            unlink("pdb/Author.pdb");
+        if (file_exists("pdb/Testfile/Testfile.pdb")) {
+            unlink("pdb/Testfile/Testfile.pdb");
+        }
+       if (file_exists("pdb/Testfile/Author.pdb")) {
+            unlink("pdb/Testfile/Author.pdb");
         }
         
-        if (file_exists("pdb/Publication.pdb")) {
-            unlink("pdb/Publication.pdb");
+        if (file_exists("pdb/Testfile/Publication.pdb")) {
+            unlink("pdb/Testfile/Publication.pdb");
+        }
+        
+        if (file_exists("pdb/Testfile/PrivateConstructor.pdb")) {
+            unlink("pdb/Testfile/PrivateConstructor.pdb");
+        }
+        
+         if (file_exists("pdb/Testfile/StaticStub.pdb")) {
+            unlink("pdb/Testfile/StaticStub.pdb");
         }
         
     }
@@ -58,13 +69,25 @@ class PPersistanceManagerXmlTest  extends \PHPUnit_Framework_TestCase
      */
     protected function tearDown()
     {
-       PSessionFactory::closeSession("Testfile.db");
-       if (file_exists("pdb/Author.pdb")) {
-            unlink("pdb/Author.pdb");
+       PSessionFactory::closeSession("Testfile");
+       if (file_exists("pdb/Testfile/Testfile.pdb")) {
+            unlink("pdb/Testfile/Testfile.pdb");
         }
         
-        if (file_exists("pdb/Publication.pdb")) {
-            unlink("pdb/Publication.pdb");
+        if (file_exists("pdb/Testfile/Author.pdb")) {
+            unlink("pdb/Testfile/Author.pdb");
+        } 
+       
+        if (file_exists("pdb/Testfile/Publication.pdb")) {
+            unlink("pdb/Testfile/Publication.pdb");
+        }
+        
+        if (file_exists("pdb/Testfile/PrivateConstructor.pdb")) {
+            unlink("pdb/Testfile/PrivateConstructor.pdb");
+        }
+        
+        if (file_exists("pdb/Testfile/StaticStub.pdb")) {
+            unlink("pdb/Testfile/StaticStub.pdb");
         }
     }
     
@@ -109,6 +132,45 @@ class PPersistanceManagerXmlTest  extends \PHPUnit_Framework_TestCase
         $authorReFetched = $this->pm->fetch(new PObjectId(0));
 
         $this->assertTrue($author2->equals($authorReFetched));
+        
+    }
+    
+    public function testPersistStatic()
+    {
+        $static = new \StaticStub();
+        $human = $this->createTestAuthor();
+        //\StaticStub::$human = "Test";
+        \StaticStub::$human = $human;
+
+        $this->pm->persist($static);
+        
+        $this->pm->commit();
+        
+        
+        
+        \StaticStub::$human->setName("Fridolin");
+        $this->pm->fetch(new PObjectId(0));
+
+        $this->assertFalse(\StaticStub::$human->getName() == "Fridolin");
+        
+        $this->assertFalse(\StaticStub::$human->equals($human));
+        
+    }
+    
+    public function testPersistPrivateConstructor()
+    {
+
+        $privateConstructorObject = \PrivateConstructor::createObject("TestAttr");
+        
+        $this->assertTrue($privateConstructorObject->equals($privateConstructorObject));
+        
+        $this->pm->persist($privateConstructorObject);
+        
+        $this->pm->commit();
+
+        $privateConstructorObjectReFetched = $this->pm->fetch(new PObjectId(0));
+
+        $this->assertTrue($privateConstructorObject->equals($privateConstructorObjectReFetched ));
         
     }
     
