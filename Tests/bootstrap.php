@@ -9,7 +9,7 @@
 /**
  * @author J. Baum
  */
-require dirname(__DIR__) . '/vendor/autoload.php';
+require dirname(__FILE__) . '/vendor/autoload.php';
 
 //$autoloader = new PAutoloader('ParrotDb');
 //$autoloader->register();
