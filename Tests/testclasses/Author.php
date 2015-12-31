@@ -1,6 +1,6 @@
 <?php
 
-require_once "Person.php";
+require_once  "Person.php";
 
 /**
  * Description of Author
