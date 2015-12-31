@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<phpunit bootstrap="tests/bootstrap.php">
+  <testsuites>
+    <testsuite name="parrotdb">
+      <directory suffix="Test.php">Tests</directory>
+    </testsuite>
+  </testsuites>
+
+  <filter>
+    <whitelist>
+      <directory>ParrotDb</directory>
+    </whitelist>
+  </filter>
+</phpunit>
+
