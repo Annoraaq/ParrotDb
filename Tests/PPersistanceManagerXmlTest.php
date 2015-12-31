@@ -12,9 +12,9 @@ use \ParrotDb\Query\LotB\Parser\Parser;
 use \ParrotDb\Query\LotB\Tokenizer;
 use \ParrotDb\Core\ObjectMapper;
 
-require_once  dirname(__DIR__) . "/testclasses/Author.php";
-require_once  dirname(__DIR__) . "/testclasses/TestRec.php";
-require_once  dirname(__DIR__) . "/testclasses/Publication.php";
+require_once  "/testclasses/Author.php";
+require_once  "/testclasses/TestRec.php";
+require_once  "/testclasses/Publication.php";
 
 
 /**
