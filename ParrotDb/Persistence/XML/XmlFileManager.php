@@ -58,6 +58,7 @@ class XmlFileManager {
     }
     
     private function toFilePath($className) {
+        $className = str_replace('\\', '-', $className);
         return ($this->dbPath
             . $className
             . self::DB_FILE_ENDING
@@ -276,7 +277,7 @@ class XmlFileManager {
     }
 
     private function isFileExistent($className) {
-        return file_exists($this->dbPath . $className . ".pdb");
+        return file_exists($this->toFilePath($className));
     }
     
     

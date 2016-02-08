@@ -180,11 +180,17 @@ class ObjectMapper {
      */
     public function makePersistanceReady($object) {
 
+        $hasUsedObjectId = false;
+        
         if ($this->isAlreadyPersistedInMemory($object)) {
-            return $this->oIdToPHPId[spl_object_hash($object)]->getObjectId();
+            $hasUsedObjectId = true;
+            $id = $this->oIdToPHPId[spl_object_hash($object)]->getObjectId();
+            //return $this->oIdToPHPId[spl_object_hash($object)]->getObjectId();
         }
         
-        $id = $this->session->assignObjectId();
+        if (!$hasUsedObjectId) {
+            $id = $this->session->assignObjectId();
+        }
         $this->addToPersistedMemory($object, new PObject($id));
 
         $pClass = $this->classMapper->createClass($object);
