@@ -117,8 +117,9 @@ class ObjectMapper {
 
         $value = $property->getValue($object);
 
-        
-        if (PUtils::isObject($value)) {
+        if ($value === $object) {
+            $value = $this->oIdToPHPId[spl_object_hash($object)]->getObjectId();
+        } else if (PUtils::isObject($value)) {
             $value = $this->makePersistanceReady($value);
         } else if (PUtils::isArray($value)) {
             $value = $this->persistArray($value);

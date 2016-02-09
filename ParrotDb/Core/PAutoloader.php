@@ -8,9 +8,11 @@ namespace ParrotDb\Core;
 class PAutoloader {
 
     private $namespace;
+    private $rootPath;
     
-    public function __construct($namespace = null) {
+    public function __construct($namespace = null, $rootPath = '/') {
         $this->namespace = $namespace;
+        $this->rootPath = $rootPath;
     }
     
     public function register() {
@@ -25,7 +27,7 @@ class PAutoloader {
 
         $className = str_replace('\\', DIRECTORY_SEPARATOR, $className);
         
-        $file = ROOT_PATH . $className . '.php';
+        $file = $this->rootPath . $className . '.php';
 
         
         if (file_exists($file)) {

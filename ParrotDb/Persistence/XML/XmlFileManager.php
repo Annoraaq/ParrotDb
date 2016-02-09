@@ -1,6 +1,6 @@
 <?php
 
-namespace ParrotDb\Persistence\Xml;
+namespace ParrotDb\Persistence\XML;
 
 use ParrotDb\ObjectModel\PObject;
 use ParrotDb\ObjectModel\PObjectId;
