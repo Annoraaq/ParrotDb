@@ -23,6 +23,8 @@ class ObjectMapper {
     private $classMapper;
     
     private $instantiationLocks;
+    
+    private $recDep;
 
     /**
      * 
@@ -31,6 +33,7 @@ class ObjectMapper {
     public function __construct($session) {
         $this->session = $session;
         $this->classMapper = new ClassMapper();
+        $this->recDep = 0;
     }
     
     public function getOIdToPhpId() {
@@ -209,9 +212,11 @@ class ObjectMapper {
     }
 
     public function commit() {
-        foreach ($this->oIdToPHPId as $pObject) {
+        foreach ($this->oIdToPHPId as $key => $pObject) {
             $this->session->getDatabase()->insert($pObject);
+            unset($this->oIdToPHPId[$key]);
         }
+       //unset ($this->oIdToPHPId);
     }
 
     /**
@@ -336,17 +341,24 @@ class ObjectMapper {
      */
     public function fromPObject(PObject $pObject) {
 
+        
+     
+
         if (isset($this->instantiationLocks[$pObject->getObjectId()->getId()])) {
             //return $pObject->getObjectId();
             return $this->instantiationLocks[$pObject->getObjectId()->getId()];
-        }
+        } 
         
         
         
         $instance = $this->instantiate($pObject);
+        
+//
+//               echo "\nOID: " . $pObject->getObjectId()->getId() . "\n";
+//               var_dump($this->instantiationLocks);
+//return $instance;
 
-
-        $this->addToPersistedMemory($instance, $pObject);
+        //$this->addToPersistedMemory($instance, $pObject);
 
         //$this->instantiationLocks[$pObject->getObjectId()->getId()] = false;
         unset($this->instantiationLocks[$pObject->getObjectId()->getId()]);

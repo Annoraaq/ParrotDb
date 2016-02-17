@@ -41,6 +41,10 @@ class PClass{
         return $this->extent;
     }
     
+    public function resetExtent() {
+        $this->extent = array();
+    }
+    
     public function addExtentMember(PObjectId $id, $member) {
         $this->extent[$id->getId()] = $member;
     }
@@ -68,6 +72,44 @@ class PClass{
     
     public function hasField($name) {
         return isset($this->fields[$name]);
+    }
+    
+    public function equals($object) {
+        if (!($object instanceof PClass)) {
+            return false;
+        }
+        
+        if ($object->getName() != $this->getName()) {
+            return false;
+        }
+        
+        foreach ($this->getFields() as $field) {
+            $found = false;
+            foreach ($object->getFields() as $field2) {
+                if ($field == $field2) {
+                    $found = true;
+                    break;
+                }
+            }
+            if (!$found) {
+                return false;
+            }
+        }
+        
+        foreach ($this->getSuperclasses() as $superclass) {
+            $found = false;
+            foreach ($object->getSuperclasses() as $superclass2) {
+                if ($superclass == $superclass2) {
+                    $found = true;
+                    break;
+                }
+            }
+            if (!$found) {
+                return false;
+            }
+        }
+        
+        return true;
     }
 
 }

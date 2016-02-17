@@ -106,6 +106,7 @@ class PClassConstraint implements PConstraint {
     }
     
     private function matchesClassName(PObject $pObject) {
+        
         if ($pObject->getClass()->getName() == $this->className) {
             return true;
         }

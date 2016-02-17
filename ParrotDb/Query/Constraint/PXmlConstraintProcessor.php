@@ -34,6 +34,7 @@ class PXmlConstraintProcessor implements PConstraintProcessor {
         $resultSet = new PResultSet();
         $counter = 0;
         foreach ($this->persistedObjects as $persistedObject) {
+            
             if ($constraint->isSatisfiedBy($persistedObject)) {
 
                 $resultSet->add($persistedObject);

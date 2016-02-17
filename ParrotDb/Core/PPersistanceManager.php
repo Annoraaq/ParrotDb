@@ -62,9 +62,11 @@ class PPersistanceManager {
      */
     public function commit() {
         
-        foreach ($this->toPersist as $obj) {
+        foreach ($this->toPersist as $key => $obj) {
             $this->objectMapper->makePersistanceReady($obj);
+            unset($this->toPersist[$key]);
         }
+
         $this->objectMapper->commit();
     }
 
@@ -75,10 +77,15 @@ class PPersistanceManager {
      * @return object
      */
     public function fetch(PObjectId $objectId) {
-        
-        return $this->objectMapper->fromPObject(
-            $this->session->getDatabase()->fetch($objectId)
-        );
+        $pob = $this->session->getDatabase()->fetch($objectId);
+        $res = $this->objectMapper->fromPObject($pob
+            
+        ); 
+        $this->persist($res);
+        $this->objectMapper->addToPersistedMemory($res, $pob);
+        return $res;
+       // $this->session->getDatabase()->fetch($objectId);
+        //return null;
     }
     
 //    /**
@@ -109,13 +116,13 @@ class PPersistanceManager {
     public function query(PConstraint $constraint) {
         $resultSet = $this->session->getDatabase()->query($constraint);
         $newResultSet = new PResultSet();
-        
+
         foreach ($resultSet as $result) {
             $newResultSet->add(
                 $this->objectMapper->fromPObject($result)
             );
         }
-        
+
         return $newResultSet;
     }
     
@@ -139,6 +146,13 @@ class PPersistanceManager {
      */
     public function deleteCascade(PConstraint $constraint) {
         return $this->session->getDatabase()->deleteCascade($constraint);
+    }
+    
+    /**
+     * @return PObjectMapper
+     */
+    public function getObjectMapper() {
+        return $this->objectMapper;
     }
 
 

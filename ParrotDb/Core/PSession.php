@@ -4,6 +4,7 @@ namespace ParrotDb\Core;
 
 use \ParrotDb\Persistence\PMemoryDatabase;
 use \ParrotDb\Persistence\XmlDatabase;
+use \ParrotDb\Persistence\FeatherDatabase;
 
 /**
  * Description of PSession
@@ -14,6 +15,7 @@ class PSession {
     
     const DB_MEMORY = 1;
     const DB_XML = 2;
+    const DB_FEATHER = 3;
     
     
     private $filePath;
@@ -29,6 +31,9 @@ class PSession {
                 break;
             case (self::DB_XML):
                 $this->database = new XmlDatabase($this->filePath);
+                break;
+            case (self::DB_FEATHER):
+                $this->database = new FeatherDatabase($this->filePath);
                 break;
             default:
                 throw new PException(
