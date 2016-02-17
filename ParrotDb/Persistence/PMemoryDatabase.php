@@ -35,9 +35,12 @@ class PMemoryDatabase implements Database {
     
     private $latestObjectId;
     
+    private $indexes;
+    
     public function __construct() {
         $this->constraintProcessor = new PMemoryConstraintProcessor();
         $this->latestObjectId = 0;
+        $this->indexes = array();
     }
     
     /**
@@ -175,6 +178,23 @@ class PMemoryDatabase implements Database {
         $objectId = $this->latestObjectId;
         $this->latestObjectId++;
         return new PObjectId($objectId);
+    }
+
+    public function addIndex($className, $attributeName)
+    {
+        $index = array();
+        
+        foreach ($this->persistedObjects as $id => $pObject) {
+            if ($pObject->getClass()->getName() == $className) {
+                $index[$pObject->getAttribute($attributeName)->getValue()][] = $pObject->getObjectId()->getId();
+            }
+        }
+        
+        $this->indexes[] = array(
+         'className' => $className,
+         'attributeName' => $attributeName,
+         'index' => $index
+        );
     }
 
 }

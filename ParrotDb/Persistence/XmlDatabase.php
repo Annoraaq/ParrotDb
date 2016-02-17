@@ -216,4 +216,9 @@ class XmlDatabase implements Database
         return new PObjectId($objectId);
     }
 
+    public function addIndex($className, $attributeName)
+    {
+        
+    }
+
 }

@@ -130,7 +130,7 @@ class FeatherParser {
     /**
      * @param PObjectId $objectId
      */
-    public function fetch(PObjectId $objectId) {
+    public function fetch(PObjectId $objectId, $index = array()) {
         
         $this->virtualString = new VirtualString($this->fileName, $this->chunkSize);
         

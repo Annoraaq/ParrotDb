@@ -70,6 +70,15 @@ interface Database {
      * @return \ParrotDb\ObjectModel\PObjectId
      */
     public function assignObjectId();
+    
+    /**
+     * Adds an index to the database.
+     * 
+     * @param string $className
+     * @param string $attributeName
+     */
+    public function addIndex($className, $attributeName);
+
 
     
 }

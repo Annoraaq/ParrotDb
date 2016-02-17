@@ -223,4 +223,9 @@ class FeatherDatabase implements Database
         return new PObjectId($objectId);
     }
 
+    public function addIndex($className, $attributeName)
+    {
+        
+    }
+
 }

@@ -1,0 +1,12 @@
+<br />
+<b>Warning</b>:  unlink(pdb/Testfile/Testfile.pdb): Permission denied in <b>C:\xampp\htdocs\Wingspan\PdbBenchmark.php</b> on line <b>41</b><br />
+100	1	0	0	0	
+200	1	0	0	1	
+300	1	0	0	2	
+400	2	1	0	3	
+500	3	0	0	5	
+600	5	0	0	8	
+700	7	1	0	11	
+800	8	2	1	15	
+900	11	2	1	17	
+1000	12	1	1	23	

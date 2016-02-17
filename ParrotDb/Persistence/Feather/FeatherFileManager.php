@@ -35,6 +35,8 @@ class FeatherFileManager {
     
     private $featherStream;
     
+    private $buffer;
+    
     /**
      * @param string $dbName
      */
@@ -80,6 +82,8 @@ class FeatherFileManager {
      * @param PObject $pObject PObject to store
      */
     public function storeObject(PObject $pObject) {
+        
+        $this->invalidateBuffer($pObject->getClass()->getName());
         $this->pObject = $pObject;
         $this->openFile($this->pObject->getClass()->getName());
         
@@ -179,9 +183,19 @@ $this->openFile($this->pObject->getClass()->getName());
 
     }
     
-    private function fetchFromFile($className) {
-        $featherParser = new FeatherParser($this->toFilePath($className));
-        return $featherParser->fetchAll();
+    private function fetchFromFile($className)
+    {
+
+        if (!isset($this->buffer[$className])) {
+            $featherParser = new FeatherParser($this->toFilePath($className));
+            $this->buffer[$className] = $featherParser->fetchAll();
+        }
+        
+        return $this->buffer[$className];
+    }
+    
+    private function invalidateBuffer($className) {
+        unset($this->buffer[$className]);
     }
 
     private function fetchFrom($className, PObjectId $oid) {
@@ -191,9 +205,13 @@ $this->openFile($this->pObject->getClass()->getName());
     }
     
      public function delete($className, PObjectId $oid) {
+         
+         $this->invalidateBuffer($className);
 
         $featherParser = new FeatherParser($this->toFilePath($className));
         $featherParser->setInvalid($oid);
+        
+        
         
 
 //        $this->loadXml($className);
