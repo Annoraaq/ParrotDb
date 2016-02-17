@@ -55,35 +55,10 @@ class VirtualWriteString extends VirtualString
      */
     public function replace($start, $stop)
     {
-//        $substr = '';
-//
-//        $pos = $start;
-//        while ($pos < $stop) {
-//            try {
-//                $substr .= $this->get($pos);
-//                $pos++;
-//            } catch (PException $e) {
-//                break;
-//            }
-//        }
-//
-//        return $substr;
-        
-        //echo "\nfseek $start, stop: $stop\n";
         fseek($this->file, $start, SEEK_SET);
-        
-        
-        $res = fread($this->file, 10);
-        
-        echo "\nread from()$start: $res\n";
-                echo "\nINBETWEEN\n";
-                
-        fseek($this->file, $start, SEEK_SET); 
-        fwrite($this->file, "i");
-                //echo "\nWINDOW: " . $this->window . "\n";
-        
 
-        
+        fwrite($this->file, "i");
+
     }
 
 }

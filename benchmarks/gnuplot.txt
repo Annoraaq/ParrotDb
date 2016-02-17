@@ -1,0 +1,22 @@
+
+Terminal type set to 'wxt'
+gnuplot> set style data histogram
+gnuplot> cd 'C:\Users\Annoraaq\Desktop'
+gnuplot> predicted = "#79a337"; measured="#6c2b53"; pur = "#e3a4eb"
+gnuplot> set boxwidth 0.5
+gnuplot> plot "data.txt" using 2:xtic(1) ti "M/M/1" fc rgb predicted, '' u 3 ti "measured" fc rgb pur     
+gnuplot> set style fill solid border -1
+gnuplot> plot "data.txt" using 2:xtic(1) ti "M/M/1" fc rgb predicted, '' u 3 ti "measured" fc rgb pur
+gnuplot> plot "data.txt" using 2:xtic(1) ti "M/M/1" fc rgb predicted, '' u 3 ti "measured" fc rgb pur
+gnuplot> plot "data.txt" using 2:xtic(1) ti "M/M/1" fc rgb predicted, '' u 3 ti "measured" fc rgb pur
+gnuplot> plot "data.txt" using 2:xtic(1) ti "M/M/1" fc rgb predicted, '' u 3 ti "measured" fc rgb pur, '' u 4 ti "test" fc rgb measured
+gnuplot> plot "data.txt" using 2:xtic(1) ti "MySQL" fc rgb predicted, '' u 3 ti "ParrotDb (XML)" fc rgb pur, '' u 4 ti "ParrotDb (Feather)" fc rgb measured  
+gnuplot> set ylabel "runtime in seconds"
+gnuplot> plot "data.txt" using 2:xtic(1) ti "MySQL" fc rgb predicted, '' u 3 ti "ParrotDb (XML)" fc rgb pur, '' u 4 ti "ParrotDb (Feather)" fc rgb measured
+gnuplot> set boxwidth 1
+gnuplot> plot "data.txt" using 2:xtic(1) ti "MySQL" fc rgb predicted, '' u 3 ti "ParrotDb (XML)" fc rgb pur, '' u 4 ti "ParrotDb (Feather)" fc rgb measured
+gnuplot> set boxwidth 0.75                                                                                                                                 
+gnuplot> plot "data.txt" using 2:xtic(1) ti "MySQL" fc rgb predicted, '' u 3 ti "ParrotDb (XML)" fc rgb pur, '' u 4 ti "ParrotDb (Feather)" fc rgb measured
+gnuplot> set boxwidth 1                                                                                                                                    
+gnuplot> plot "data.txt" using 2:xtic(1) ti "MySQL" fc rgb predicted, '' u 3 ti "ParrotDb (XML)" fc rgb pur, '' u 4 ti "ParrotDb (Feather)" fc rgb measured
+gnuplot> 

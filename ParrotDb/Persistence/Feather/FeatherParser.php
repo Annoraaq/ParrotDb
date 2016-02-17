@@ -251,9 +251,7 @@ class FeatherParser {
                 $objectStartPos = $this->getNextObjectPosition($objectStartPos);
             }
         }
-        
-        echo "\nWIN: " . $this->virtualString->getWindow() . "\n";
-        
+
         $this->virtualString->close();  
 
     }
@@ -265,14 +263,6 @@ class FeatherParser {
         
         $objectStartPos = $this->getEndOfClassSection();
                     
-        echo $this->virtualString->getWindow() . "\n";
-        echo $this->virtualString->substr($objectStartPos, $objectStartPos+10) . "\n";
-        //$objectStartPos = $this->getNextObjectPosition($objectStartPos);
-
-        
-        echo "\nobject Start: " . $objectStartPos . "\n";
-        
-        
         $object = false;
         while (true) {
             
@@ -285,7 +275,7 @@ class FeatherParser {
             
             $nextObjectId = $this->getNextObjectId($objectStartPos);
             if (!$this->isInvalid($nextObjectId) && $nextObjectId == $objectId->getId()) {
-                echo "\nreplace $objectStartPos\n";
+
                 $this->virtualString->replace($objectStartPos+2,"j");
                 break;
             } else {

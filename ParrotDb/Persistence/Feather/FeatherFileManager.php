@@ -81,8 +81,6 @@ class FeatherFileManager {
      */
     public function storeObject(PObject $pObject) {
         $this->pObject = $pObject;
-        echo "\nstore " . $this->pObject->getObjectId()->getId() . "\n" ;
-
         $this->openFile($this->pObject->getClass()->getName());
         
         if ($this->fileExists) {
@@ -110,22 +108,18 @@ $this->openFile($this->pObject->getClass()->getName());
     }
     
     private function insertFirstObject() {
-        echo "insert";
         $this->classSerializer->setPClass($this->pObject->getClass());
         $this->featherStream = $this->classSerializer->serialize();
         
         $this->objectSerializer->setPObject($this->pObject);
         $this->featherStream .= $this->objectSerializer->serialize();
-        
-        echo "\n" . $this->featherStream . "\n";
+
     }
 
     private function appendObject() {
-        echo "append " . $this->pObject->getObjectId()->getId() . "\n" ;
         $this->objectSerializer->setPObject($this->pObject);
         //$this->removeOldObject();
         $this->featherStream = $this->objectSerializer->serialize();
-        echo $this->featherStream . "\n";
         //fseek($this->file, 0, SEEK_END);
     }
     
@@ -198,7 +192,6 @@ $this->openFile($this->pObject->getClass()->getName());
     
      public function delete($className, PObjectId $oid) {
 
-         echo "\ndelete oid " . $oid->getId() . "\n";
         $featherParser = new FeatherParser($this->toFilePath($className));
         $featherParser->setInvalid($oid);
         

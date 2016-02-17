@@ -1,0 +1,8 @@
+set title "Performance of insert operations"    
+set xlabel "operations"
+set ylabel "runtime in seconds"
+
+set key top left
+
+plot "benchmark_mysql_100_-_1000.csv" using 2 with linespoint ti "MySql", "benchmark_pdb_xml_100_-_1000.csv" using 2 with linespoint ti "ParrotDb (XML)", "benchmark_pdb_feather_100_-_1000.csv"
+ using 2 with linespoint ti "ParrotDb (Feather)", "benchmark_pdb_mem_100_-_1000.csv" using 2:xtic(1) with linespoints ti "ParrotDb (Memory)"
