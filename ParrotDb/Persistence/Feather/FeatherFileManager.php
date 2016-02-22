@@ -35,7 +35,10 @@ class FeatherFileManager {
     
     private $featherStream;
     
-    private $buffer;
+    private $bufferManager;
+    
+    private $limit;
+    private $stored;
     
     /**
      * @param string $dbName
@@ -46,6 +49,9 @@ class FeatherFileManager {
         $this->dbName = $dbName;
         $this->objectSerializer = new FeatherObjectSerializer();
         $this->classSerializer = new FeatherClassSerializer();
+        $this->bufferManager = new FeatherBufferManager();
+        $this->limit = 10000000;
+        $this->stored = 0;
     }
     
     private function filePath() {
@@ -71,6 +77,7 @@ class FeatherFileManager {
             $this->fileExists = true;
             $this->file = fopen($this->toFilePath($fileName),"a+");
         } else {
+            $this->fileExists = false;
             $this->file = fopen($this->toFilePath($fileName),"w+");
         }
 
@@ -84,6 +91,7 @@ class FeatherFileManager {
     public function storeObject(PObject $pObject) {
         
         $this->invalidateBuffer($pObject->getClass()->getName());
+        $this->bufferManager->resetBuffer($this->toFilePath($pObject->getClass()->getName()));
         $this->pObject = $pObject;
         $this->openFile($this->pObject->getClass()->getName());
         
@@ -91,7 +99,7 @@ class FeatherFileManager {
             
             fclose($this->file);
             $this->delete($pObject->getClass()->getName(), $pObject->getObjectId());
-$this->openFile($this->pObject->getClass()->getName());
+            $this->openFile($this->pObject->getClass()->getName());
            // $this->removeOldObject();
 
           // $this->removeOldObject();
@@ -107,23 +115,83 @@ $this->openFile($this->pObject->getClass()->getName());
         $res = fwrite($this->file, $this->featherStream);
 
         fclose($this->file);
+        $this->featherStream = "";
+        $this->stored = 0;
+
+    }
+    
+    /**
+     * @param array $arr PObject to store
+     */
+    public function storeObjects($arr) {
+        
+        foreach ($arr as $key => $val) {
+            $this->bufferManager->resetBuffer($this->toFilePath($key));
+            
+            $this->openFile($key);
+            $existed = $this->fileExists;
+            fclose($this->file);
+            foreach ($val as $temp) {
+                $this->pObject = $temp;
+                if ($existed) {
+                    $this->delete($key, $temp->getObjectId());
+                }
+            }
+            
+            
+            $this->openFile($key);
+            foreach ($val as $temp) {
+                $this->pObject = $temp;
+                if ($existed) {
+                    $this->appendObject();
+                } else {
+                    $this->insertFirstObject();
+                    $existed = true;
+                }
+                
+                if ($this->stored >= $this->limit) {
+                    $res = fwrite($this->file, $this->featherStream);
+                    $this->featherStream = "";
+                    $this->stored = 0;
+                }
+            }
+            
+            
+
+            $res = fwrite($this->file, $this->featherStream);
+            fclose($this->file);
+            $this->featherStream = "";
+            $this->stored = 0;
+        }
+        
         
 
     }
     
+   
+    
     private function insertFirstObject() {
         $this->classSerializer->setPClass($this->pObject->getClass());
-        $this->featherStream = $this->classSerializer->serialize();
+        $serClass = $this->classSerializer->serialize();
+        $serClassLen = strlen($serClass);
+        $this->featherStream = $serClass;
+        $this->stored = $serClassLen;
         
         $this->objectSerializer->setPObject($this->pObject);
-        $this->featherStream .= $this->objectSerializer->serialize();
+        $serObj =  $this->objectSerializer->serialize();
+        $serObjLen = strlen($serObj);
+        $this->featherStream .= $serObj;
+        $this->stored += $serObjLen;
 
     }
 
     private function appendObject() {
         $this->objectSerializer->setPObject($this->pObject);
         //$this->removeOldObject();
-        $this->featherStream = $this->objectSerializer->serialize();
+        $serObj =  $this->objectSerializer->serialize();
+        $serObjLen = strlen($serObj);
+        $this->featherStream .= $serObj;
+        $this->stored += $serObjLen;
         //fseek($this->file, 0, SEEK_END);
     }
     
@@ -183,6 +251,44 @@ $this->openFile($this->pObject->getClass()->getName());
 
     }
     
+    /**
+     * 
+     * @param PObjectId $oid
+     * @return PObject
+     * @throws PException
+     */
+    public function fetchConstraint(\ParrotDb\Query\Constraint\PConstraint $constraint) {
+        
+        $dbFiles = $this->fetchDbFiles();
+        
+        $objList = array();
+        foreach ($dbFiles as $fileName) {
+            
+            $list = $this->fetchFromFileConstraint($fileName, $constraint);
+            
+            foreach ($list as $item) {
+                $objList[$item->getObjectId()->getId()] = $item;
+            }
+        }
+        
+        return $objList;
+
+    }
+    
+    private function fetchFromFileConstraint($className, \ParrotDb\Query\Constraint\PConstraint $constraint)
+    {
+
+       // if (!isset($this->buffer[$className])) {
+            $featherParser = new FeatherParser($this->toFilePath($className));
+            $featherParser->setBufferManager($this->bufferManager);
+            return $featherParser->fetchConstraint($constraint);
+        //}
+        
+        //return $this->buffer[$className];
+    }
+    
+    
+    
     private function fetchFromFile($className)
     {
 
@@ -207,6 +313,7 @@ $this->openFile($this->pObject->getClass()->getName());
      public function delete($className, PObjectId $oid) {
          
          $this->invalidateBuffer($className);
+         $this->bufferManager->resetBuffer($this->toFilePath($className));
 
         $featherParser = new FeatherParser($this->toFilePath($className));
         $featherParser->setInvalid($oid);

@@ -1011,22 +1011,22 @@ class PPersistanceManagerFeatherTest  extends \PHPUnit_Framework_TestCase
        
     }
     
-//    /**
-//     * @covers ParrotDb\Core\PPersistanceManager::query
-//     */
-//    public function testSerializeClass() {
-//        
-////        $author = $this->createTestAuthor();
-////        $author->setAge(53);
-////       
-//////        $objectMapper = new ObjectMapper($this->session);
-//////        $objectMapper->
-////        
-////        $serialoze
-////        $pClass = $this->classMapper->createClass($author);
-//        
+    /**
+     * @covers ParrotDb\Core\PPersistanceManager::query
+     */
+    public function testSerializeClass() {
+        
+//        $author = $this->createTestAuthor();
+//        $author->setAge(53);
 //       
-//    }
+////        $objectMapper = new ObjectMapper($this->session);
+////        $objectMapper->
+//        
+//        $serialoze
+//        $pClass = $this->classMapper->createClass($author);
+        
+       
+    }
     
  
 }

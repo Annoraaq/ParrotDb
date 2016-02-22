@@ -29,6 +29,13 @@ interface Database {
      * @param PObject $pObject
      */
     public function insert(PObject $pObject);
+    
+    /**
+     * Inserts an array of objects into the database.
+     * 
+     * @param array $arr
+     */
+    public function insertArray($arr);
 
     /**
      * Checks, whether an object with the given object id is in the database.

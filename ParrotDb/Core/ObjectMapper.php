@@ -212,11 +212,14 @@ class ObjectMapper {
     }
 
     public function commit() {
-        foreach ($this->oIdToPHPId as $key => $pObject) {
-            $this->session->getDatabase()->insert($pObject);
+        $arr2 = array();
+        foreach ($this->oIdToPHPId as $key => $pObject) {     
+            $arr2[$pObject->getClass()->getName()][] = $pObject;
+
             unset($this->oIdToPHPId[$key]);
         }
-       //unset ($this->oIdToPHPId);
+        
+        $this->session->getDatabase()->insertArray($arr2);
     }
 
     /**

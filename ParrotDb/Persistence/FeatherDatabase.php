@@ -60,8 +60,10 @@ class FeatherDatabase implements Database
     private function writeLatestObjectId()
     {
         $file = fopen(FeatherFileManager::DB_PATH . $this->name . '/' . $this->name . FeatherFileManager::DB_FILE_ENDING,"w");
-        fwrite($file, $this->latestObjectId);
-        fclose($file);
+        if ($file) {
+            fwrite($file, $this->latestObjectId);
+            fclose($file);
+        }
     }
 
     /**
@@ -84,6 +86,23 @@ class FeatherDatabase implements Database
         $this->fileManager->storeObject($pObject);
         $this->writeLatestObjectId();
     }
+    
+    /**
+     * @inheritDoc
+     */
+    public function insertArray($arr)
+    {
+//        foreach ($arr as $temp) {
+//            foreach ($temp as $te) {
+//                $this->insert($te);
+//            }
+//            
+//        }
+        
+//        echo "\ncounter:$counter\n";
+        $this->fileManager->storeObjects($arr);
+        $this->writeLatestObjectId();
+    }
 
     /**
      * @inheritDoc
@@ -102,9 +121,10 @@ class FeatherDatabase implements Database
 
         // :performance
         // do not fetch all!
-        $this->constraintProcessor->setPersistedObjects($this->fileManager->fetchAll());
+       // $this->constraintProcessor->setPersistedObjects($this->fileManager->fetchAll());
+        return $this->fileManager->fetchConstraint($constraint);
 
-        return $this->constraintProcessor->process($constraint);
+        //return $this->constraintProcessor->process($constraint);
     }
 
     /**

@@ -220,5 +220,14 @@ class XmlDatabase implements Database
     {
         
     }
+    
+    public function insertArray($arr)
+    {
+       foreach ($arr as $temp) {
+            foreach ($temp as $te) {
+                $this->insert($te);
+            }
+        }
+    }
 
 }

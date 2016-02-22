@@ -6,6 +6,7 @@ use ParrotDb\Utils\VirtualString;
 use ParrotDb\Utils\VirtualWriteString;
 use ParrotDb\ObjectModel\PObjectId;
 use ParrotDb\Core\PException;
+use ParrotDb\Query\Constraint\PConstraint;
 
 /**
  * The Featherparser handles the parsing of a feather file
@@ -17,10 +18,15 @@ class FeatherParser {
     private $virtualString;
     private $fileName;
     private $chunkSize;
+    private $bufferManager;
     
     public function __construct($fileName, $chunkSize = 10024) {
         $this->fileName = $fileName;
         $this->chunkSize = $chunkSize;
+    }
+    
+    public function setBufferManager(FeatherBufferManager $bufferManager) {
+        $this->bufferManager = $bufferManager;
     }
     
     /**
@@ -32,6 +38,7 @@ class FeatherParser {
     
     private function getEndOfClassSection() {
 
+        
         $endOfClass = $this->virtualString->findFirst(']');
         if ($this->notFound($endOfClass)) {
             
@@ -214,6 +221,116 @@ class FeatherParser {
         return $objects;
     }
     
+    /**
+     * @return array All deserialized PObjects
+     */
+    public function fetchConstraint(PConstraint $constraint) {
+        
+        $constraintProcessor = new \ParrotDb\Query\Constraint\PXmlConstraintProcessor();
+        $this->virtualString = new VirtualString($this->fileName, $this->chunkSize);
+        $res = array();
+
+        $buuf = new \ParrotDb\Query\PResultSet();
+        if ($this->bufferManager->isWholeFileInBuffer($this->fileName)) {
+            $constraintProcessor->setPersistedObjects($this->bufferManager->getBuffer($this->fileName));
+            
+            $buuf =  $constraintProcessor->process($constraint);
+            return $buuf;
+        }
+        
+        
+
+        $class = $this->getClass();
+        $objectDeserializer = new FeatherObjectDeserializer($class);
+        $this->virtualString->open();
+                
+        $objects = array();
+        
+        if($this->bufferManager->getBufferOffset($this->fileName) > 0) {
+            foreach ($this->bufferManager->getBuffer($this->fileName) as $temp) {
+                $objects[] = $temp;
+            }
+            $objectStartPos = $this->bufferManager->getBufferOffset($this->fileName);
+        } else {
+            $objectStartPos = $this->getEndOfClassSection();
+            $this->bufferManager->setBufferOffset($this->fileName, $objectStartPos);
+        }
+        
+        
+        $charactersRead = 0;
+        $limit = 10000000;
+       // $limit = 500;
+
+
+        while (true) {
+
+            if ($this->isEndOfFile($objectStartPos)) {
+                break;
+            }
+            
+            $obj = "["
+                . $this->getNextObject($objectStartPos)
+                . "]";
+            
+            $objLen = strlen($obj);
+            $charactersRead += $objLen;
+            
+            if ($charactersRead > $limit) {
+                $constraintProcessor->setPersistedObjects($objects);
+                $tempRes = $constraintProcessor->process($constraint);
+                foreach ($tempRes as $tmp) {
+                    $res[] = $tmp;
+                }
+                
+    
+                $charactersRead = 0;
+                $objects = array();
+            }
+
+            $oid = $this->getNextObjectId($objectStartPos);
+            if ((!isset($oid[0]) || $oid[0] != 'i')) {
+                $objectDeserializer->setInput(
+                      $obj
+                );
+                $temp = $objectDeserializer->deserialize();
+                
+                if (($this->bufferManager->getBufferOffset($this->fileName) + $objLen) <= $limit) {
+                    $this->bufferManager->setWholeFileInBuffer($this->fileName, true);
+                    $this->bufferManager->setBufferOffset(
+                        $this->fileName,
+                        $this->bufferManager->getBufferOffset($this->fileName)+$objLen
+                    );
+                    $this->bufferManager->addToBuffer($this->fileName, $temp);
+                } else {
+                    $this->bufferManager->setWholeFileInBuffer($this->fileName, false);
+                }
+                $objects[] = $temp;
+            }
+
+            
+            $objectStartPos = $this->getNextObjectPosition($objectStartPos);
+
+ 
+        }
+
+
+        
+        $this->virtualString->close();  
+        
+        
+        $constraintProcessor->setPersistedObjects($objects);
+        $tempRes = $constraintProcessor->process($constraint);
+        foreach ($tempRes as $tmp) {
+            $res[] = $tmp;
+        }
+        
+        $constraintProcessor->setPersistedObjects($res);
+        $rees = $constraintProcessor->process($constraint);
+
+        return $rees;
+
+    }
+    
 
     public function parse() {
         
@@ -260,8 +377,9 @@ class FeatherParser {
         $this->virtualString = new VirtualWriteString($this->fileName, $this->chunkSize);
         
         $this->virtualString->open();
-        
+
         $objectStartPos = $this->getEndOfClassSection();
+
                     
         $object = false;
         while (true) {
