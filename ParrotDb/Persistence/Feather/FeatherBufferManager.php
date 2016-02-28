@@ -2,6 +2,8 @@
 
 namespace ParrotDb\Persistence\Feather;
 
+use ParrotDb\ObjectModel\PObject;
+
 /**
  * This class is responsible for buffering data in memory to keep the access
  * times low.
@@ -76,8 +78,8 @@ class FeatherBufferManager
      * @param string $fileName
      * @param mixed $value
      */
-    public function addToBuffer($fileName, $value) {
-        $this->buffer[$fileName][] = $value;
+    public function addToBuffer($fileName, PObject $value) {
+        $this->buffer[$fileName][$value->getObjectId()->getId()] = $value;
     }
     
     /**
@@ -87,6 +89,15 @@ class FeatherBufferManager
         $this->bufferOffset[$fileName] = 0;
         $this->wholeFileInBuffer[$fileName] = false;
         unset($this->buffer[$fileName]);
+    }
+    
+    /**
+     * @param string $fileName
+     * @param int $id
+     */
+    public function removeFromBuffer($fileName, $id)
+    {
+        unset($this->buffer[$fileName][$id]);
     }
 
 }

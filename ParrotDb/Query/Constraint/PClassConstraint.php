@@ -126,5 +126,21 @@ class PClassConstraint implements PConstraint {
     public function setConstraint(PConstraint $constraint) {
         $this->constraint = $constraint;
     }
+    
+    /**
+     * @return string
+     */
+    public function getClassName()
+    {
+        return $this->className;
+    }
+    
+    /**
+     * @return PConstraint
+     */
+    public function getConstraint()
+    {
+        return $this->constraint;
+    }
 
 }

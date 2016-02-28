@@ -151,8 +151,11 @@ class FeatherParser
             ",", $this->objectStartPos
         );
         $len = $this->virtualString->getNextInterval($lengthStart, ",", ",");
-        $lenOfLen = mb_strlen($len) + $idLen + 1;
-
+        
+        // $lenOfLen = mb_strlen($len) + $idLen + 1;
+        // :todo
+        // check why this is independend from the length of the object id
+        $lenOfLen = mb_strlen($len) + 1 + 1;
         return
             $lengthStart + $len + $lenOfLen;
     }
@@ -354,6 +357,44 @@ class FeatherParser
                 && $nextObjectId == $objectId->getId()) {
                 $this->virtualString->replace($this->objectStartPos + 2, "j");
                 break;
+            } else {
+                $this->objectStartPos = $this->getNextObjectPosition(
+                    mb_strlen($nextObjectId)
+                );
+            }
+        }
+
+        $this->virtualString->close();
+
+        return false;
+    }
+    
+    /**
+     * @param array $oids
+     * @return boolean
+     */
+    public function setInvalidArray($oids)
+    {
+        $this->virtualString = new VirtualWriteString(
+            $this->fileName, $this->chunkSize
+        );
+
+        $this->virtualString->open();
+
+        $this->objectStartPos = $this->getEndOfClassSection();
+
+        $amount = count($oids);
+        while (true && $amount > 0) {
+            if ($this->isEndOfFile($this->objectStartPos)) {
+                break;
+            }
+
+            $nextObjectId = $this->getNextObjectId();
+            if (!$this->isInvalid($nextObjectId)
+                && isset($oids[$nextObjectId])) {
+                $this->virtualString->replace($this->objectStartPos + 2, "j");
+                unset($oids[$nextObjectId]);
+                $amount--;
             } else {
                 $this->objectStartPos = $this->getNextObjectPosition(
                     mb_strlen($nextObjectId)

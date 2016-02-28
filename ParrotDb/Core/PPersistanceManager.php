@@ -4,6 +4,8 @@ namespace ParrotDb\Core;
 
 use \ParrotDb\ObjectModel\PObjectId;
 use \ParrotDb\Query\Constraint\PConstraint;
+use \ParrotDb\Query\Constraint\POrConstraint;
+use \ParrotDb\Query\Constraint\PClassConstraint;
 use \ParrotDb\Query\PResultSet;
 
 /**
@@ -38,6 +40,11 @@ class PPersistanceManager
      * @var array PHP-objects to be persisted on commit
      */
     private $toPersist;
+    
+     /**
+     * @var array PHP-objects to be deleted on commit
+     */
+    private $toDelete;
 
     /**
      * @param PSession $session
@@ -47,6 +54,7 @@ class PPersistanceManager
         $this->session = $session;
         $this->classMapper = new ClassMapper();
         $this->objectMapper = new ObjectMapper($session);
+        $this->toDelete = array();
     }
 
     /**
@@ -66,13 +74,27 @@ class PPersistanceManager
      */
     public function commit()
     {
-
+        
+        $counter = 0;
+        foreach ($this->toDelete as $className => $arr) {
+            $temp = $arr[0];
+            $arr[0] = $temp->getConstraint();
+            $constr = new POrConstraint($arr);
+            $temp->setConstraint($constr);
+            
+            $counter += $this->session->getDatabase()->delete($temp);
+            unset($this->toDelete[$className]);
+        }
+        
+        
         foreach ($this->toPersist as $key => $obj) {
             $this->objectMapper->makePersistanceReady($obj);
             unset($this->toPersist[$key]);
         }
 
         $this->objectMapper->commit();
+        
+        return $counter;
     }
 
     /**
@@ -117,9 +139,10 @@ class PPersistanceManager
      * @param PConstraint $constraint
      * @return int
      */
-    public function delete(PConstraint $constraint)
+    public function delete(PClassConstraint $constraint)
     {
-        return $this->session->getDatabase()->delete($constraint);
+        //return $this->session->getDatabase()->delete($constraint);
+        $this->toDelete[$constraint->getClassName()][] = $constraint;
     }
 
     /**

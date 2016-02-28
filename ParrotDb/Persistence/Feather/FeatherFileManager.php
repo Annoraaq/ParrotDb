@@ -258,10 +258,36 @@ class FeatherFileManager
      */
     public function delete($className, PObjectId $oid)
     {
-        $this->bufferManager->resetBuffer($this->toFilePath($className));
+        //$this->bufferManager->resetBuffer($this->toFilePath($className));
+        $this->bufferManager->removeFromBuffer($this->toFilePath($className), $oid->getId());
 
         $featherParser = new FeatherParser($this->toFilePath($className));
         $featherParser->setInvalid($oid);
+    }
+    
+    /**
+     * @param string $className
+     * @param array $oIds
+     */
+    public function deleteArray($objects)
+    {
+        $oids = array();
+        $className = false;
+        foreach ($objects as $obj) {
+            $className = $obj->getClass()->getName();
+            $this->bufferManager->removeFromBuffer(
+                $this->toFilePath($obj->getClass()->getName()),
+                $obj->getObjectId()->getId()
+            );
+            $oids[$obj->getObjectId()->getId()] = $obj->getObjectId()->getId();
+        }
+        
+        if ($className != false) {
+            $featherParser = new FeatherParser($this->toFilePath($className));
+            $featherParser->setInvalidArray($oids);
+        }
+        
+        
     }
 
     private function deserialize(\DomElement $object)

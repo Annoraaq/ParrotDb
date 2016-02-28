@@ -135,17 +135,11 @@ class FeatherDatabase implements Database
     {
         $resultSet = $this->fileManager->fetchConstraint($constraint);
 
-        $toDelete = array();
-        foreach ($resultSet as $elem) {
-            $this->deleteSingle(
-                $elem->getClass()->getName(), $elem->getObjectId()
-            );
-            $toDelete[$elem->getObjectId()->getId()] = $elem->
-                    getObjectId()->getId();
-        }
+        $this->fileManager->deleteArray($resultSet);
+        
 
         $this->writeLatestObjectId();
-        return count($toDelete);
+        return count($resultSet);
     }
 
     /**
@@ -156,9 +150,7 @@ class FeatherDatabase implements Database
      */
     public function deleteSingle($className, PObjectId $objectId)
     {
-        if ($this->isPersisted($objectId)) {
-            $this->fileManager->delete($className, $objectId);
-        }
+        $this->fileManager->delete($className, $objectId);
     }
 
     /**

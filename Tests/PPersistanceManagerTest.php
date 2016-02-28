@@ -873,7 +873,8 @@ class PPersistanceManagerTest extends \PHPUnit_Framework_TestCase
         $parser = new Parser($this->session->getDatabase());
         $constraint = $parser->parse('get Author name = "Mr Satan", age = 53 or age=23, name = "Mr Satan2"');
         
-        $result = $this->pm->delete($constraint);
+        $this->pm->delete($constraint);
+        $result = $this->pm->commit();
 
         $this->assertEquals(1, $result);
         
@@ -902,7 +903,8 @@ class PPersistanceManagerTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals(2, $result->size());
         
         
-        $result = $this->pm->delete($constraint);
+        $this->pm->delete($constraint);
+        $result = $this->pm->commit();
         $this->assertEquals(2, $result);
         $result = $this->pm->query($constraint);
         
