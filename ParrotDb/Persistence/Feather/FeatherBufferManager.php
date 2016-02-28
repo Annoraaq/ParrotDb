@@ -3,7 +3,8 @@
 namespace ParrotDb\Persistence\Feather;
 
 /**
- * Description of FeatherBufferManager
+ * This class is responsible for buffering data in memory to keep the access
+ * times low.
  *
  * @author J. Baum
  */
@@ -14,46 +15,78 @@ class FeatherBufferManager
     private $wholeFileInBuffer;
     private $bufferOffset;
 
-    public function isWholeFileInBuffer($className) {
-        if (isset($this->wholeFileInBuffer[$className])) {
-            return $this->wholeFileInBuffer[$className];
+    /**
+     * @param string $fileName
+     * @return boolean
+     */
+    public function isWholeFileInBuffer($fileName) {
+        if (isset($this->wholeFileInBuffer[$fileName])) {
+            return $this->wholeFileInBuffer[$fileName];
         }
         
         return false;
     }
     
-    public function setWholeFileInBuffer($className, $value) {
-        $this->wholeFileInBuffer[$className] = $value;
+    /**
+     * 
+     * @param string $fileName
+     * @param boolean $value
+     */
+    public function setWholeFileInBuffer($fileName, $value) {
+        $this->wholeFileInBuffer[$fileName] = $value;
     }
     
-    public function getBufferOffset($className) {
-        if (!isset($this->bufferOffset[$className])) {
-            $this->bufferOffset[$className] = 0;
+    /**
+     * Returns the amount of characters, which are in the buffer.
+     * 
+     * @param string $fileName
+     * @return int
+     */
+    public function getBufferOffset($fileName) {
+        if (!isset($this->bufferOffset[$fileName])) {
+            $this->bufferOffset[$fileName] = 0;
         }
         
-        return $this->bufferOffset[$className];
+        return $this->bufferOffset[$fileName];
     }
     
-    public function setBufferOffset($className, $value) {
-        $this->bufferOffset[$className] = $value;
+    /**
+     * Sets the amount of characters, which are in the buffer.
+     * 
+     * @param string $fileName
+     * @param int $value
+     */
+    public function setBufferOffset($fileName, $value) {
+        $this->bufferOffset[$fileName] = $value;
     }
     
-    public function getBuffer($className) {
-        if (!isset($this->buffer[$className])) {
-            $this->buffer[$className] = array();
+    /**
+     * @param string $fileName
+     * @return array
+     */
+    public function getBuffer($fileName) {
+        if (!isset($this->buffer[$fileName])) {
+            $this->buffer[$fileName] = array();
            
         }
-         return $this->buffer[$className];
+         return $this->buffer[$fileName];
     }
     
-    public function addToBuffer($className, $value) {
-        $this->buffer[$className][] = $value;
+    /**
+     * @param string $fileName
+     * @param mixed $value
+     */
+    public function addToBuffer($fileName, $value) {
+        $this->buffer[$fileName][] = $value;
     }
     
-    public function resetBuffer($className) {
-        $this->bufferOffset[$className] = 0;
-        $this->wholeFileInBuffer[$className] = false;
-        unset($this->buffer[$className]);
+    /**
+     * @param string $fileName
+     */
+    public function resetBuffer($fileName) {
+        $this->bufferOffset[$fileName] = 0;
+        $this->wholeFileInBuffer[$fileName] = false;
+        unset($this->buffer[$fileName]);
     }
 
 }

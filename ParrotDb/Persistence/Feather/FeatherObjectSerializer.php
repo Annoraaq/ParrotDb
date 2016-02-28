@@ -20,15 +20,19 @@ class FeatherObjectSerializer {
      */
     protected $pObject;
     
+    /**
+     * @param PObject $pObject
+     */
     public function setPObject(PObject $pObject) {
         $this->pObject = $pObject;
     }
 
+    /**
+     * @return string
+     */
     public function serialize() {
         $output = '[' . $this->pObject->getObjectId()->getId() . ',';
-        
         $attributes = $this->createAttributes();
-        
         $output .= mb_strlen($attributes) . ',' . $attributes . ']';
         
         return $output;
@@ -46,7 +50,7 @@ class FeatherObjectSerializer {
         }
         
         if (!$empty) {
-            $output = substr($output, 0, mb_strlen($output)-1);
+            $output = PUtils::cutLastChar($output);
         }
 
         return $output;
@@ -86,7 +90,7 @@ class FeatherObjectSerializer {
         }
         
         if (!$empty) {
-            $output = substr($output, 0, mb_strlen($output)-1);
+            $output = PUtils::cutLastChar($output);
         }
         
         $output .= '}';

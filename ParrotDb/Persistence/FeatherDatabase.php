@@ -8,7 +8,6 @@ use \ParrotDb\Query\Constraint\PConstraint;
 use \ParrotDb\Query\Constraint\PXmlConstraintProcessor;
 use \ParrotDb\Utils\PUtils;
 use \ParrotDb\Core\PException;
-use \ParrotDb\Persistence\XML\XmlFileManager;
 use \ParrotDb\Persistence\Feather\FeatherFileManager;
 
 /**
@@ -27,7 +26,6 @@ class FeatherDatabase implements Database
     protected $constraintProcessor;
     protected $markedForDeletion;
     protected $fileManager;
-    
     private $name;
     private $latestObjectId;
 
@@ -39,27 +37,34 @@ class FeatherDatabase implements Database
         $this->constraintProcessor = new PXmlConstraintProcessor();
         $this->fileManager = new FeatherFileManager($name);
         $this->name = $name;
-        
-        if (!file_exists(FeatherFileManager::DB_PATH . $name . '/' . $name . FeatherFileManager::DB_FILE_ENDING)) {
-            $file = fopen(FeatherFileManager::DB_PATH . $name . '/' . $name . FeatherFileManager::DB_FILE_ENDING,"w");
+
+        $dbPath = FeatherFileManager::DB_PATH
+                . $name . '/' . $name . FeatherFileManager::DB_FILE_ENDING;
+        if (!file_exists($dbPath)) {
+            $file = fopen($dbPath, "w");
             fwrite($file, 0);
             fclose($file);
         }
-        
-        $this->readLatestObjectId();
 
+        $this->readLatestObjectId();
+    }
+
+    private function getDbPath()
+    {
+        return FeatherFileManager::DB_PATH . $this->name
+            . '/' . $this->name . FeatherFileManager::DB_FILE_ENDING;
     }
     
     private function readLatestObjectId()
     {
-        $file = fopen(FeatherFileManager::DB_PATH . $this->name . '/' . $this->name . FeatherFileManager::DB_FILE_ENDING,"r");
-        $this->latestObjectId = (int)fread($file, 1000);
+        $file = fopen($this->getDbPath(), "r");
+        $this->latestObjectId = (int) fread($file, 1000);
         fclose($file);
     }
-    
+
     private function writeLatestObjectId()
     {
-        $file = fopen(FeatherFileManager::DB_PATH . $this->name . '/' . $this->name . FeatherFileManager::DB_FILE_ENDING,"w");
+        $file = fopen($this->getDbPath(), "w");
         if ($file) {
             fwrite($file, $this->latestObjectId);
             fclose($file);
@@ -86,20 +91,12 @@ class FeatherDatabase implements Database
         $this->fileManager->storeObject($pObject);
         $this->writeLatestObjectId();
     }
-    
+
     /**
      * @inheritDoc
      */
     public function insertArray($arr)
     {
-//        foreach ($arr as $temp) {
-//            foreach ($temp as $te) {
-//                $this->insert($te);
-//            }
-//            
-//        }
-        
-//        echo "\ncounter:$counter\n";
         $this->fileManager->storeObjects($arr);
         $this->writeLatestObjectId();
     }
@@ -118,13 +115,7 @@ class FeatherDatabase implements Database
      */
     public function query(PConstraint $constraint)
     {
-
-        // :performance
-        // do not fetch all!
-       // $this->constraintProcessor->setPersistedObjects($this->fileManager->fetchAll());
         return $this->fileManager->fetchConstraint($constraint);
-
-        //return $this->constraintProcessor->process($constraint);
     }
 
     /**
@@ -142,17 +133,15 @@ class FeatherDatabase implements Database
      */
     public function delete(PConstraint $constraint)
     {
-        
-        // :performance
-        // do not fetch all!
-        $this->constraintProcessor->setPersistedObjects($this->fileManager->fetchAll());
-        $resultSet = $this->constraintProcessor->process($constraint);
+        $resultSet = $this->fileManager->fetchConstraint($constraint);
 
         $toDelete = array();
         foreach ($resultSet as $elem) {
-            $this->deleteSingle($elem->getClass()->getName(),
-             $elem->getObjectId());
-            $toDelete[$elem->getObjectId()->getId()] = $elem->getObjectId()->getId();
+            $this->deleteSingle(
+                $elem->getClass()->getName(), $elem->getObjectId()
+            );
+            $toDelete[$elem->getObjectId()->getId()] = $elem->
+                    getObjectId()->getId();
         }
 
         $this->writeLatestObjectId();
@@ -177,9 +166,10 @@ class FeatherDatabase implements Database
      */
     public function deleteCascade(PConstraint $constraint)
     {
-        $this->constraintProcessor->setPersistedObjects($this->fileManager->fetchAll());
         $this->markForDeletion = [];
-        $resultSet = $this->constraintProcessor->process($constraint);
+
+        $resultSet = $this->fileManager->fetchConstraint($constraint);
+
         foreach ($resultSet as $elem) {
             $this->deleteCascadeSingle($elem);
         }
@@ -188,7 +178,7 @@ class FeatherDatabase implements Database
 
         foreach ($this->markedForDeletion as $pObject) {
             $this->deleteSingle($pObject->getClass()->getName(),
-             $pObject->getObjectId());
+                $pObject->getObjectId());
         }
 
         return $amount;
@@ -205,7 +195,7 @@ class FeatherDatabase implements Database
         if (isset($this->markedForDeletion[$pObject->getObjectId()->getId()])) {
             return;
         }
-        
+
         $this->markedForDeletion[$pObject->getObjectId()->getId()] = $pObject;
 
         foreach ($pObject->getAttributes() as $attr) {

@@ -5,11 +5,12 @@ namespace ParrotDb\ObjectModel;
 use \ParrotDb\Core\Comparable;
 
 /**
- * Description of PObject
+ * This class represents PHP objects in the ParrotDB object model.
  *
  * @author J. Baum
  */
-class PObject implements Comparable {
+class PObject implements Comparable
+{
 
     protected $objectId;
     protected $persistent;
@@ -17,39 +18,77 @@ class PObject implements Comparable {
     protected $class;
     protected $attributes = array();
 
-    public function __construct($objectId) {
+    /**
+     * @param \ParrotDb\ObjectModel\PObjectId $objectId
+     */
+    public function __construct(PObjectId $objectId)
+    {
         $this->objectId = $objectId;
     }
 
-    public function getAttributes() {
+    /**
+     * @return array
+     */
+    public function getAttributes()
+    {
         return $this->attributes;
     }
 
-    public function getPersistent() {
+    /**
+     * @return boolean
+     */
+    public function getPersistent()
+    {
         return $this->persistent;
     }
 
-    public function getObjectId() {
+    /**
+     * @return int
+     */
+    public function getObjectId()
+    {
         return $this->objectId;
     }
 
-    public function getDirty() {
+    /**
+     * @return boolean
+     */
+    public function isDirty()
+    {
         return $this->dirty;
     }
 
-    public function addAttribute($name, $value) {
+    /**
+     * @param string $name
+     * @param mixed $value
+     */
+    public function addAttribute($name, $value)
+    {
         $this->attributes[$name] = new PAttribute($name, $value);
     }
 
-    public function getClass() {
+    /**
+     * @return \ParrotDb\ObjectModel\PClass
+     */
+    public function getClass()
+    {
         return $this->class;
     }
 
-    public function setClass(PClass $class) {
+    /**
+     * @param \ParrotDb\ObjectModel\PClass $class
+     */
+    public function setClass(PClass $class)
+    {
         $this->class = $class;
     }
 
-    public function isIdentical($object) {
+    /**
+     * @param mixed $object
+     * @return boolean
+     */
+    public function isIdentical($object)
+    {
         if ($object instanceof PObject) {
             return $object->getObjectId() === $this->objectId;
         }
@@ -57,18 +96,39 @@ class PObject implements Comparable {
         return false;
     }
 
-    public function hasAttribute($name) {
+    /**
+     * @param string $name
+     * @return boolean
+     */
+    public function hasAttribute($name)
+    {
         return isset($this->attributes[$name]);
     }
-    
-    public function getAttribute($name) {
+
+    /**
+     * @param string $name
+     * @return \ParrotDb\ObjectModel\PAttribute
+     * @throws \ParrotDb\Core\PException
+     */
+    public function getAttribute($name)
+    {
         if (!$this->hasAttribute($name)) {
-            throw new \ParrotDb\Core\PException("Attribute " . $name . " not found.");
+            throw new \ParrotDb\Core\PException(
+             "Attribute " . $name . " not found."
+            );
         }
         return $this->attributes[$name];
     }
 
-    public function equalsWithoutId($object) {
+    /**
+     * Checks if the given object equals the current object ignoring the object
+     * id.
+     * 
+     * @param mixed $object
+     * @return boolean
+     */
+    public function equalsWithoutId($object)
+    {
 
         if (!$this->equalsGeneral($object)) {
             return false;
@@ -80,7 +140,8 @@ class PObject implements Comparable {
         return true;
     }
 
-    private function equalsGeneral($object) {
+    private function equalsGeneral($object)
+    {
         if (!($object instanceof PObject)) {
             return false;
         }
@@ -89,7 +150,7 @@ class PObject implements Comparable {
             return false;
         }
 
-        if ($this->dirty != $object->getDirty()) {
+        if ($this->dirty != $object->isDirty()) {
             return false;
         }
 
@@ -104,11 +165,13 @@ class PObject implements Comparable {
         return true;
     }
 
-    private function isObjectId($object) {
+    private function isObjectId($object)
+    {
         return ($object instanceof PObjectId);
     }
 
-    private function equalsAttributes($object, $withObjectId) {
+    private function equalsAttributes($object, $withObjectId)
+    {
 
         foreach ($this->attributes as $attribute) {
 
@@ -132,7 +195,11 @@ class PObject implements Comparable {
         return true;
     }
 
-    public function equals($object) {
+    /**
+     * @inheritdoc
+     */
+    public function equals($object)
+    {
 
         if (!$this->equalsGeneral($object)) {
             return false;
@@ -147,9 +214,7 @@ class PObject implements Comparable {
             echo "(" . $object->getObjectId()->getId() . ")";
             return false;
         }
-
-
-
+        
         return true;
     }
 

@@ -3,6 +3,7 @@
 namespace ParrotDb\Persistence\Feather;
 
 use \ParrotDb\Persistence\Deserializer;
+use \ParrotDb\Utils\PUtils;
 
 /**
  * The FeatherClassDeserializer handles the deserialization of a
@@ -14,7 +15,7 @@ class FeatherClassDeserializer implements Deserializer {
     
     private $input;
     private $length;
-    
+
     /**
      * @param string $input
      */
@@ -43,22 +44,24 @@ class FeatherClassDeserializer implements Deserializer {
     }
     
     private function getName() {
-        $nameEndPos = strpos($this->input,",");
+        $nameEndPos = mb_strpos($this->input,",");
         
-        return substr($this->input, 3, $nameEndPos-4);
+        $offset = mb_strlen("c['");
+        $length = $nameEndPos-$offset - mb_strlen("'");
+        return mb_substr($this->input, $offset, $length);
     }
     
     private function getFields() {
         
         $attrToken = "attr{";
-        $attrPos = strpos($this->input,$attrToken);
+        $attrPos = mb_strpos($this->input,$attrToken);
         $attrStartPos = $attrPos+strlen($attrToken);
-        $attrEndPos = strpos($this->input, "}")-$attrStartPos;
-        $arr = explode(",", substr($this->input, $attrStartPos, $attrEndPos));
+        $attrEndPos = mb_strpos($this->input, "}")-$attrStartPos;
+        $arr = explode(",", mb_substr($this->input, $attrStartPos, $attrEndPos));
         
         $cleanArr = array();
         foreach ($arr as $element) {
-            $cleanArr[] = substr($element,1,strlen($element)-2);
+            $cleanArr[] = PUtils::cutHeadAndTail($element);
         }
         
         return $cleanArr;
@@ -67,19 +70,19 @@ class FeatherClassDeserializer implements Deserializer {
     private function getSuperclasses() {
         
         $scToken = "sc{";
-        $scPos = strpos($this->input,$scToken);
-        $scStartPos = $scPos+strlen($scToken);
-        $scEndPos = strpos($this->input, "}", $scStartPos)-$scStartPos;
-        $arr = explode(",", substr($this->input, $scStartPos, $scEndPos));
-        
+        $scPos = mb_strpos($this->input, $scToken);
+        $scStartPos = $scPos + mb_strlen($scToken);
+        $scEndPos = mb_strpos($this->input, "}", $scStartPos) - $scStartPos;
+        $arr = explode(",", mb_substr($this->input, $scStartPos, $scEndPos));
+
         $cleanArr = array();
-        if ($scEndPos > 0) { 
+        if ($scEndPos > 0) {
             foreach ($arr as $element) {
-                $cleanArr[] = substr($element,1,strlen($element)-2);
+                $cleanArr[] = PUtils::cutHeadAndTail($element);
             }
         }
-        
-        
+
+
         return $cleanArr;
     }
     

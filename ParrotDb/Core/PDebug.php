@@ -3,20 +3,24 @@
 namespace ParrotDb\Core;
 
 /**
- * Description of PDebug
+ * This class collects debug functionality.
  *
  * @author J. Baum
  */
-class PDebug {
-    
-    public static function dump($var, $label = null, $print = true, $exit = false) {
+class PDebug
+{
+
+    public static function dump($var, $label = null, $print = true,
+     $exit = false)
+    {
         if (defined('APPLICATION_ENV') && (APPLICATION_ENV != 'development')) {
             return $var;
         }
 
         // format the label
         $label_text = $label;
-        $label = ($label === null) ? '' : '<h2 style="margin: 0px">' . trim($label) . '</h2>';
+        $label = ($label === null) ? '' : '<h2 style="margin: 0px">'
+         . trim($label) . '</h2>';
 
         // var_dump the variable into a buffer and keep the output
         ob_start();
@@ -56,7 +60,9 @@ class PDebug {
                 $output = htmlspecialchars($output, ENT_QUOTES);
             }
 
-            $output = '<pre style="font-family: \'Courier New\'; font-size: 11px; background-color: #FBFED7; margin: 5px auto; padding: 10px; border: 1px solid #CCCCCC; max-width: 1000px;">'
+            $output = '<pre style="font-family: \'Courier New\';'
+             . 'font-size: 11px; background-color: #FBFED7; margin: 5px auto;'
+             . 'padding: 10px; border: 1px solid #CCCCCC; max-width: 1000px;">'
              . $label
              . $output
              . '</pre>';
@@ -72,5 +78,5 @@ class PDebug {
 
         return $output;
     }
-    
+
 }

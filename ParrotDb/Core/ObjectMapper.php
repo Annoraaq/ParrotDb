@@ -9,7 +9,7 @@ use \ParrotDb\Utils\PUtils;
 use \ParrotDb\Utils\PReflectionUtils;
 
 /**
- * Description of ObjectMapper
+ * This class is responsible for creating a PObject from a given PHP object
  *
  * @author J. Baum
  */
@@ -23,8 +23,6 @@ class ObjectMapper {
     private $classMapper;
     
     private $instantiationLocks;
-    
-    private $recDep;
 
     /**
      * 
@@ -33,9 +31,11 @@ class ObjectMapper {
     public function __construct($session) {
         $this->session = $session;
         $this->classMapper = new ClassMapper();
-        $this->recDep = 0;
     }
     
+    /**
+     * @return array All persisted objects in memory
+     */
     public function getOIdToPhpId() {
         return $this->oIdToPHPId;
     }
@@ -51,6 +51,10 @@ class ObjectMapper {
         return isset($this->oIdToPHPId[spl_object_hash($object)]);
     }
 
+    /**
+     * @param object $object
+     * @param PObject $pObject
+     */
     public function addToPersistedMemory($object, PObject $pObject) {
         $this->oIdToPHPId[spl_object_hash($object)] = $pObject;
     }
@@ -189,7 +193,6 @@ class ObjectMapper {
         if ($this->isAlreadyPersistedInMemory($object)) {
             $hasUsedObjectId = true;
             $id = $this->oIdToPHPId[spl_object_hash($object)]->getObjectId();
-            //return $this->oIdToPHPId[spl_object_hash($object)]->getObjectId();
         }
         
         if (!$hasUsedObjectId) {
@@ -211,15 +214,17 @@ class ObjectMapper {
         return $pObject->getObjectId();
     }
 
+    /**
+     * Commits changes to persisted objects to the database.
+     */
     public function commit() {
-        $arr2 = array();
+        $arr= array();
         foreach ($this->oIdToPHPId as $key => $pObject) {     
-            $arr2[$pObject->getClass()->getName()][] = $pObject;
-
+            $arr[$pObject->getClass()->getName()][] = $pObject;
             unset($this->oIdToPHPId[$key]);
         }
         
-        $this->session->getDatabase()->insertArray($arr2);
+        $this->session->getDatabase()->insertArray($arr);
     }
 
     /**
@@ -251,8 +256,6 @@ class ObjectMapper {
     private function setProperties($instance, PObject $pObject) {
         $pClass = $pObject->getClass();
         
-        
-
         foreach ($pClass->getFields() as $field) {
             
             $property = $this->findProperty($pClass, $field);
@@ -344,26 +347,11 @@ class ObjectMapper {
      */
     public function fromPObject(PObject $pObject) {
 
-        
-     
-
         if (isset($this->instantiationLocks[$pObject->getObjectId()->getId()])) {
-            //return $pObject->getObjectId();
             return $this->instantiationLocks[$pObject->getObjectId()->getId()];
         } 
-        
-        
-        
+
         $instance = $this->instantiate($pObject);
-        
-//
-//               echo "\nOID: " . $pObject->getObjectId()->getId() . "\n";
-//               var_dump($this->instantiationLocks);
-//return $instance;
-
-        //$this->addToPersistedMemory($instance, $pObject);
-
-        //$this->instantiationLocks[$pObject->getObjectId()->getId()] = false;
         unset($this->instantiationLocks[$pObject->getObjectId()->getId()]);
         
         return $instance;

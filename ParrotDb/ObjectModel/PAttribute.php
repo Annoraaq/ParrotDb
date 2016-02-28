@@ -2,37 +2,57 @@
 
 namespace ParrotDb\ObjectModel;
 
-
 /**
- * Description of PAttribute
+ * This class represents an attribute of a PObject
  *
  * @author J. Baum
  */
-class PAttribute {
-    
-    
+class PAttribute
+{
+
     protected $name;
-    
     protected $value;
-    
-    public function __construct($name, $value) {
+
+    /**
+     * @param string $name
+     * @param string $value
+     */
+    public function __construct($name, $value)
+    {
         $this->name = $name;
         $this->value = $value;
     }
-    
-    public function getName() {
+
+    /**
+     * @return string
+     */
+    public function getName()
+    {
         return $this->name;
     }
-    
-    public function getValue() {
+
+    /**
+     * @return mixed
+     */
+    public function getValue()
+    {
         return $this->value;
     }
-    
-    public function setName($name) {
+
+    /**
+     * @param string $name
+     */
+    public function setName($name)
+    {
         $this->name = $name;
     }
-    
-    public function setValue($value) {
+
+    /**
+     * @param mixed $value
+     */
+    public function setValue($value)
+    {
         $this->value = $value;
     }
+
 }

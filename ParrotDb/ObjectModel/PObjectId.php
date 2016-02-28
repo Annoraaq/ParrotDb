@@ -1,42 +1,58 @@
 <?php
 
-
 namespace ParrotDb\ObjectModel;
 
 use \ParrotDb\Core\Comparable;
 
 /**
- * Description of PObjectId
+ * This class represents a unique object identifier.
  *
  * @author J. Baum
  */
-class PObjectId implements Comparable {
-    
+class PObjectId implements Comparable
+{
+
     private $id;
-    
-    public function __construct($id) {
+
+    /**
+     * @param int $id
+     */
+    public function __construct($id)
+    {
         $this->id = $id;
     }
-    
-    public function getId() {
+
+    /**
+     * @return int
+     */
+    public function getId()
+    {
         return $this->id;
     }
-    
-    public function equals($object) {
+
+    /**
+     * @inheritdoc
+     */
+    public function equals($object)
+    {
         if ($object instanceof PObjectId) {
             if ($object->getId() == $this->id) {
                 return true;
             }
         }
-        
+
         return false;
     }
-    
-    public function __toString() {
+
+    /**
+     * @inheritdoc
+     */
+    public function __toString()
+    {
         if ($this->id == null) {
             return "null";
         }
         return "" . $this->id;
     }
-    
+
 }

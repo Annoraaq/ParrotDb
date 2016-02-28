@@ -17,7 +17,7 @@ class PObjectTest extends \PHPUnit_Framework_TestCase
      */
     protected function setUp()
     {
-        $this->object = new PObject(3);
+        $this->object = new PObject(new PObjectId(3));
         $this->object->addAttribute("attr1", "val1");
         $this->object->addAttribute("attr2", "val2");
         $this->object->setClass(new PClass("Testclass"));
@@ -58,7 +58,7 @@ class PObjectTest extends \PHPUnit_Framework_TestCase
      */
     public function testGetObjectId()
     {
-        $this->assertEquals($this->object->getObjectId(), 3);
+        $this->assertEquals($this->object->getObjectId(), new PObjectId(3));
     }
 
 
@@ -90,17 +90,17 @@ class PObjectTest extends \PHPUnit_Framework_TestCase
      */
     public function testIsEqual()
     {
-        $obj = new PObject(3);
+        $obj = new PObject(new PObjectId(3));
         $obj->addAttribute("attr1", "val1");
         $obj->addAttribute("attr2", "val2");
         $obj->setClass(new PClass("Testclass"));
         
-        $obj2 = new PObject(77);
+        $obj2 = new PObject(new PObjectId(77));
         $obj2->addAttribute("attr1", "val3");
         $obj2->addAttribute("attr2", "val2");
         $obj2->setClass(new PClass("Testclass2"));
         
-        $obj3 = new PObject(3);
+        $obj3 = new PObject(new PObjectId(3));
         $obj3->addAttribute("attr1", "val1");
         $obj3->addAttribute("attr2", "val2");
         $obj3->addAttribute("attr3", "val3");

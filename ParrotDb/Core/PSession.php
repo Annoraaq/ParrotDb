@@ -11,20 +11,20 @@ use \ParrotDb\Persistence\FeatherDatabase;
  *
  * @author J. Baum
  */
-class PSession {
-    
+class PSession
+{
+
     const DB_MEMORY = 1;
     const DB_XML = 2;
     const DB_FEATHER = 3;
-    
-    
+
     private $filePath;
-    
     private $database;
-    
-    public function __construct($filePath, $dbEngine) {
+
+    public function __construct($filePath, $dbEngine)
+    {
         $this->filePath = $filePath;
-        
+
         switch ($dbEngine) {
             case (self::DB_MEMORY):
                 $this->database = new PMemoryDatabase();
@@ -37,31 +37,40 @@ class PSession {
                 break;
             default:
                 throw new PException(
-                    "The given database engine could not be found."
+                "The given database engine could not be found."
                 );
         }
-        
     }
-    
-    public function createPersistenceManager() {
+
+    public function createPersistenceManager()
+    {
         return new PPersistanceManager($this);
     }
-    
+
     /**
      * Returns the current latest object ID and increases it by one.
      * 
      * @return \ParrotDb\ObjectModel\PObjectId
      */
-    public function assignObjectId() {
+    public function assignObjectId()
+    {
         return $this->database->assignObjectId();
     }
-    
-    public function close() {
+
+    /**
+     * Close the database session.
+     */
+    public function close()
+    {
         PSessionFactory::closeSession($this->filePath);
     }
-    
-    public function getDatabase() {
+
+    /**
+     * @return PDatabase
+     */
+    public function getDatabase()
+    {
         return $this->database;
     }
-    
+
 }

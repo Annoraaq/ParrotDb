@@ -7,30 +7,32 @@ use \ParrotDb\Query\Constraint\PConstraint;
 use \ParrotDb\Query\PResultSet;
 
 /**
- * Description of PersistanceManager
+ * This class is used to initiate all of the database operations and is the
+ * interface to the user.
  *
  * @author J. Baum
  */
-class PPersistanceManager {
+class PPersistanceManager
+{
 
     /**
      *
      * @var PSession database session
      */
     private $session;
-    
+
     /**
      *
      * @var ClassMapper Maps PHP objects to PClass objects
      */
     private $classMapper;
-    
+
     /**
      *
      * @var ObjectMapper Maps PHP objects to PObject objects and back
      */
     private $objectMapper;
-    
+
     /**
      *
      * @var array PHP-objects to be persisted on commit
@@ -40,7 +42,8 @@ class PPersistanceManager {
     /**
      * @param PSession $session
      */
-    public function __construct($session) {
+    public function __construct($session)
+    {
         $this->session = $session;
         $this->classMapper = new ClassMapper();
         $this->objectMapper = new ObjectMapper($session);
@@ -52,16 +55,18 @@ class PPersistanceManager {
      * @param mixed $object
      * @return int object-id
      */
-    public function persist($object) {
+    public function persist($object)
+    {
         $this->toPersist[spl_object_hash($object)] = $object;
     }
-    
+
     /**
      * Makes all "to persist" PHP objects persistance ready
      * and persists them.
      */
-    public function commit() {
-        
+    public function commit()
+    {
+
         foreach ($this->toPersist as $key => $obj) {
             $this->objectMapper->makePersistanceReady($obj);
             unset($this->toPersist[$key]);
@@ -76,56 +81,35 @@ class PPersistanceManager {
      * @param PObjectId $objectId
      * @return object
      */
-    public function fetch(PObjectId $objectId) {
-        $pob = $this->session->getDatabase()->fetch($objectId);
-        $res = $this->objectMapper->fromPObject($pob
-            
-        ); 
+    public function fetch(PObjectId $objectId)
+    {
+        $pObject = $this->session->getDatabase()->fetch($objectId);
+        $res = $this->objectMapper->fromPObject($pObject);
         $this->persist($res);
-        $this->objectMapper->addToPersistedMemory($res, $pob);
+        $this->objectMapper->addToPersistedMemory($res, $pObject);
         return $res;
-       // $this->session->getDatabase()->fetch($objectId);
-        //return null;
     }
-    
-//    /**
-//     * Queries the database.
-//     * 
-//     * @param PQuery $query
-//     * @return PResultSet
-//     */
-//    public function query(PQuery $query) {
-//        $resultSet = $this->session->getDatabase()->query($query);
-//        $newResultSet = new PResultSet();
-//        
-//        foreach ($resultSet as $result) {
-//            $newResultSet->add(
-//                $this->objectMapper->fromPObject($result)
-//            );
-//        }
-//        
-//        return $newResultSet;
-//    }
-    
+
     /**
      * Queries the database.
      * 
      * @param PConstraint $constraint
      * @return PResultSet
      */
-    public function query(PConstraint $constraint) {
+    public function query(PConstraint $constraint)
+    {
         $resultSet = $this->session->getDatabase()->query($constraint);
         $newResultSet = new PResultSet();
 
         foreach ($resultSet as $result) {
             $newResultSet->add(
-                $this->objectMapper->fromPObject($result)
+             $this->objectMapper->fromPObject($result)
             );
         }
 
         return $newResultSet;
     }
-    
+
     /**
      * Queries and deletes from the database and returns amount of
      * deleted objects.
@@ -133,10 +117,11 @@ class PPersistanceManager {
      * @param PConstraint $constraint
      * @return int
      */
-    public function delete(PConstraint $constraint) {
+    public function delete(PConstraint $constraint)
+    {
         return $this->session->getDatabase()->delete($constraint);
     }
-    
+
     /**
      * Queries and deletes from the database where the deletion cascades
      * through all connected objects.
@@ -144,17 +129,17 @@ class PPersistanceManager {
      * @param PConstraint $constraint
      * @return int
      */
-    public function deleteCascade(PConstraint $constraint) {
+    public function deleteCascade(PConstraint $constraint)
+    {
         return $this->session->getDatabase()->deleteCascade($constraint);
     }
-    
+
     /**
      * @return PObjectMapper
      */
-    public function getObjectMapper() {
+    public function getObjectMapper()
+    {
         return $this->objectMapper;
     }
 
-
-   
 }

@@ -113,4 +113,52 @@ class PUtils {
         return (substr($haystack, -$length) === $needle);
     }
 
+    
+    /**
+     * Removes the last character of the given string.
+     * 
+     * @param string $input
+     * @return string
+     */
+    public static function cutLastChar($input)
+    {
+        $length = mb_strlen($input);
+        
+        if ($length >= 1) {
+           return substr($input, 0, $length - 1); 
+        }
+        
+        return $input;
+        
+    }
+    
+    /**
+     * Removes the first character of the given string.
+     * 
+     * @param string $input
+     * @return string
+     */
+    public static function cutFirstChar($input)
+    {
+        $length = mb_strlen($input);
+        
+        if ($length >= 1) {
+           return mb_substr($input, 1); 
+        }
+        
+        return $input;
+        
+    }
+    
+    /**
+     * Cuts the first and the last char from a string
+     * 
+     * @param string $input
+     * @return string
+     */
+    public static function cutHeadAndTail($input)
+    {
+        return self::cutLastChar(self::cutFirstChar($input));
+    }
+
 }

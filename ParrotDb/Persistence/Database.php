@@ -8,7 +8,7 @@ use \ParrotDb\Query\Constraint\PConstraint;
 use \ParrotDb\Query\Constraint\PResultSet;
 
 /**
- * Description of Database
+ * Interface for the different types of databases.
  *
  * @author J. Baum
  */

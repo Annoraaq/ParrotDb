@@ -16,7 +16,9 @@ class PSessionFactory {
             self::$sessions[$filePath] = new PSession($filePath, $dbEngine);
             return self::$sessions[$filePath];
         } else {
-            throw new PException("A Session to this database is already active.");
+            throw new PException(
+             "A Session to this database is already active."
+            );
         }
     }
     

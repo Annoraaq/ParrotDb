@@ -2,7 +2,7 @@
 namespace ParrotDb\Persistence;
 
 /**
- * Description of Deserializer
+ * This interface is implemented for all deserializers.
  *
  * @author J. Baum
  */

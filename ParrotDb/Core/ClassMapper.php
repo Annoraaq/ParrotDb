@@ -7,7 +7,7 @@ use \ParrotDb\Utils\PReflectionUtils;
 
 
 /**
- * Description of Mapper
+ * This class creates a PClass object from a given PHP object.
  *
  * @author J. Baum
  */
@@ -15,6 +15,10 @@ class ClassMapper {
     
     private $pClass;
     
+    /**
+     * @param object $object
+     * @return PClass
+     */
     public function createClass($object) {
         $reflector = new \ReflectionClass(get_class($object));
 
