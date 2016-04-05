@@ -1080,7 +1080,7 @@ class PPersistanceManagerFeatherTest  extends \PHPUnit_Framework_TestCase
     
     
     public function testActivationDepth() {
-        $this->session->getDatabase()->getConfig()->activationDepth = 0;
+        $this->pm->setConfigValue('activationDepth', 0);
         $author = $this->createTestAuthor();
         $this->pm->persist($author);
         

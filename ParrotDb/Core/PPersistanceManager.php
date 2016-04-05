@@ -206,5 +206,20 @@ class PPersistanceManager
     {
         return $this->objectMapper;
     }
+    
+    /**
+     * @return PConfig
+     */
+    public function getConfig() {
+        return $this->session->getDatabase()->getConfig();
+    }
+    
+    public function setConfigValue($name, $value) {
+        $cfg = $this->session->getDatabase()->getConfig();
+        
+        if (property_exists($cfg, $name)) {
+            $cfg->{$name} = $value;
+        }
+    }
 
 }
