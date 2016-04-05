@@ -5,6 +5,7 @@ namespace ParrotDb\Persistence\Feather;
 use ParrotDb\ObjectModel\PObject;
 use ParrotDb\ObjectModel\PObjectId;
 use ParrotDb\Core\PException;
+use ParrotDb\Core\PConfig;
 use ParrotDb\Query\Constraint\PConstraint;
 
 /**
@@ -28,14 +29,14 @@ class FeatherFileManager
     private $dbName;
     private $featherStream;
     private $bufferManager;
-    private $memoryLimit;
     private $charsStored;
     private $existed;
+    private $config;
 
     /**
      * @param string $dbName
      */
-    public function __construct($dbName, $memoryLimit = 10000000)
+    public function __construct($dbName, PConfig $config)
     {
         $this->fileExists = false;
         $this->dbPath = static::DB_PATH . $dbName . '/';
@@ -43,7 +44,7 @@ class FeatherFileManager
         $this->objectSerializer = new FeatherObjectSerializer();
         $this->classSerializer = new FeatherClassSerializer();
         $this->bufferManager = new FeatherBufferManager();
-        $this->memoryLimit = $memoryLimit;
+        $this->config = $config;
         $this->charsStored = 0;
         $this->existed = false;
     }
@@ -167,7 +168,7 @@ class FeatherFileManager
 
     private function isMemoryLimitReached()
     {
-        return ($this->charsStored >= $this->memoryLimit);
+        return ($this->charsStored >= $this->config->memoryLimit);
     }
 
     private function insertFirstObject()

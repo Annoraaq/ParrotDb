@@ -8,6 +8,7 @@ use \ParrotDb\Query\Constraint\PConstraint;
 use \ParrotDb\Query\Constraint\PXmlConstraintProcessor;
 use \ParrotDb\Utils\PUtils;
 use \ParrotDb\Core\PException;
+use \ParrotDb\Core\PConfig;
 use \ParrotDb\Persistence\Feather\FeatherFileManager;
 
 /**
@@ -28,14 +29,16 @@ class FeatherDatabase implements Database
     protected $fileManager;
     private $name;
     private $latestObjectId;
+    private $config;
 
     /**
      * @param string $name
      */
     public function __construct($name)
     {
+        $this->config = new PConfig();
         $this->constraintProcessor = new PXmlConstraintProcessor();
-        $this->fileManager = new FeatherFileManager($name);
+        $this->fileManager = new FeatherFileManager($name, $this->config);
         $this->name = $name;
 
         $dbPath = FeatherFileManager::DB_PATH
@@ -48,6 +51,11 @@ class FeatherDatabase implements Database
 
         $this->readLatestObjectId();
     }
+    
+    public function getConfig() {
+        return $this->config;
+    }
+
 
     private function getDbPath()
     {

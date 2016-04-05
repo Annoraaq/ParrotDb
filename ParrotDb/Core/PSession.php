@@ -20,6 +20,7 @@ class PSession
 
     private $filePath;
     private $database;
+    private $config;
 
     public function __construct($filePath, $dbEngine)
     {
@@ -40,8 +41,10 @@ class PSession
                 "The given database engine could not be found."
                 );
         }
-    }
 
+    }
+    
+   
     public function createPersistenceManager()
     {
         return new PPersistanceManager($this);

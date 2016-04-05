@@ -32,7 +32,7 @@ class FeatherFileManagerTest extends \PHPUnit_Framework_TestCase {
      * This method is called before a test is executed.
      */
     protected function setUp() {
-        $this->fileManager = new FeatherFileManager("Feather");
+        $this->fileManager = new FeatherFileManager("Feather", new \ParrotDb\Core\PConfig());
         $this->session = PSessionFactory::createSession(
             "Feather",
             PSession::DB_FEATHER
