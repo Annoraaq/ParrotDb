@@ -13,6 +13,7 @@ class PConfig
 
     public $memoryLimit;
     public $activationDepth;
+    public $ignoreStatic;
     
     public function __construct() {
         
@@ -21,5 +22,8 @@ class PConfig
         
         // default is infinity
         $this->activationDepth = -1;
+        
+        // persist static values by default
+        $this->ignoreStatic = false;
     }
 }

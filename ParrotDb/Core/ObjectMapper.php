@@ -107,9 +107,14 @@ class ObjectMapper {
                 $property->setAccessible(true);
             }
 
-            $pObject->addAttribute(
-             $property->getName(), $this->createObjectValue($object, $property)
-            );
+            
+            if (!$this->session->getDatabase()->getConfig()->ignoreStatic ||
+                !$property->isStatic()) {
+                    $pObject->addAttribute(
+                     $property->getName(), $this->createObjectValue($object, $property)
+                    );
+            
+                }
             
 
         }
@@ -275,6 +280,11 @@ class ObjectMapper {
             
             $property = $this->findProperty($pClass, $field);
             $property->setAccessible(true);
+            
+            if ($this->session->getDatabase()->getConfig()->ignoreStatic
+                && $property->isStatic()) {
+                continue;
+            }
 
             $value = $pObject->getAttributes()[$field]->getValue();
 

@@ -83,6 +83,8 @@ class PPersistanceManager
     /**
      * Makes all "to persist" PHP objects persistance ready
      * and persists them.
+     * 
+     * @param Array $config
      */
     public function commit()
     {
