@@ -7,6 +7,8 @@ use \ParrotDb\Query\Constraint\PConstraint;
 use \ParrotDb\Query\Constraint\POrConstraint;
 use \ParrotDb\Query\Constraint\PClassConstraint;
 use \ParrotDb\Query\PResultSet;
+use \ParrotDb\Query\LotB\Parser\Parser;
+
 
 /**
  * This class is used to initiate all of the database operations and is the
@@ -131,12 +133,22 @@ class PPersistanceManager
     /**
      * Queries the database.
      * 
-     * @param PConstraint $constraint
+     * @param PConstraint | string $query
      * @param boolean $autoPersist States if fetched object should be persisted or not
      * @return PResultSet
      */
-    public function query(PConstraint $constraint, $autoPersist = true)
+    public function query($query, $autoPersist = true)
     {
+        if ($query instanceof PConstraint) {
+            return $this->queryConstraint($query, $autoPersist);
+        }
+        
+        return $this->queryString($query, $autoPersist);
+        
+        
+    }
+
+    private function queryConstraint(PConstraint $constraint, $autoPersist) {
         $resultSet = $this->session->getDatabase()->query($constraint);
         $newResultSet = new PResultSet();
 
@@ -152,6 +164,14 @@ class PPersistanceManager
         }
 
         return $newResultSet;
+    }
+    
+    private function queryString($query, $autoPersist)
+    {
+        $parser = new Parser($this->session->getDatabase());
+        $constraint = $parser->parse($query);
+        
+        return $this->queryConstraint($constraint, $autoPersist);
     }
 
     /**

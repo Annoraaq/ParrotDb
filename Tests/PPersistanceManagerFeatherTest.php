@@ -1011,17 +1011,12 @@ class PPersistanceManagerFeatherTest  extends \PHPUnit_Framework_TestCase
        
     }
     
-    /**
-     * @covers ParrotDb\Core\PPersistanceManager::query
-     */
-    public function testDirtyness() {
+    public function testAutoPersist() {
         $author = $this->createTestAuthor();
         $this->pm->persist($author);
         
         $this->pm->commit();
 
-        //$constraint = new PClassConstraint("Author");
-        //$constraint->setAmount(1);
         $parser = new Parser($this->session->getDatabase());
         $constraint = $parser->parse('get Author');
         $result = $this->pm->query($constraint);
@@ -1032,17 +1027,57 @@ class PPersistanceManagerFeatherTest  extends \PHPUnit_Framework_TestCase
         
         $fetchedAuthor->setName("Piccolo");
         
-        $this->pm->persist($fetchedAuthor);
         $this->pm->commit();
         
         $result = $this->pm->query($constraint);
         $this->assertEquals(1, $result->size());
         
         $this->assertEquals("Piccolo", $result->first()->getName());
-        
-        
 
     }
+    
+    public function testAutoPersistOff() {
+        $author = $this->createTestAuthor();
+        $this->pm->persist($author);
+        
+        $this->pm->commit();
+
+        $parser = new Parser($this->session->getDatabase());
+        $constraint = $parser->parse('get Author');
+        $result = $this->pm->query($constraint, false);
+        
+        
+        $this->assertEquals(1, $result->size());
+        $fetchedAuthor = $result->first();
+        
+        $fetchedAuthor->setName("Piccolo");
+        
+        $this->pm->commit();
+        
+        $result = $this->pm->query($constraint);
+        $this->assertEquals(1, $result->size());
+        
+        $this->assertEquals("Mr Satan", $result->first()->getName());
+
+    }
+    
+    public function testQueryShortcut() {
+        $author = $this->createTestAuthor();
+        $this->pm->persist($author);
+        
+        $this->pm->commit();
+
+        $parser = new Parser($this->session->getDatabase());
+        $constraint = $parser->parse('get Author');
+        $result = $this->pm->query($constraint);
+        
+        $result2 = $this->pm->query('get Author');
+        
+        $this->assertEquals($result->size(), $result2->size());
+        
+       
+    }
+    
     
     /**
      * @covers ParrotDb\Core\PPersistanceManager::query
