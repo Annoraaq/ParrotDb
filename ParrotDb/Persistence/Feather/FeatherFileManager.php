@@ -236,7 +236,11 @@ class FeatherFileManager
             }
         }
 
-        return $objList;
+        $resultSet = new \ParrotDb\Query\PResultSet();
+        foreach ($objList as $key => $val) {
+            $resultSet->add($val);
+        }
+        return $resultSet;
     }
 
     private function fetchFromFileConstraint($className, PConstraint $constraint)

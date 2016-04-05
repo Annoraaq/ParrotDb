@@ -19,6 +19,7 @@ class ObjectMapper {
      * @var array Holds all persisted objects in memory
      */
     private $oIdToPHPId = array();
+    private $phpIdToOId = array();
     private $session;
     private $classMapper;
     
@@ -39,6 +40,13 @@ class ObjectMapper {
     public function getOIdToPhpId() {
         return $this->oIdToPHPId;
     }
+    
+    /**
+     * @return array All persisted objects in memory
+     */
+    public function getPhpIdToOId() {
+        return $this->phpIdToOId;
+    }
 
     /**
      * Checks, whether $object is already persisted in memory. It does not
@@ -50,6 +58,7 @@ class ObjectMapper {
     public function isAlreadyPersistedInMemory($object) {
         return isset($this->oIdToPHPId[spl_object_hash($object)]);
     }
+    
 
     /**
      * @param object $object
@@ -57,6 +66,7 @@ class ObjectMapper {
      */
     public function addToPersistedMemory($object, PObject $pObject) {
         $this->oIdToPHPId[spl_object_hash($object)] = $pObject;
+        $this->phpIdToOId[$pObject->getObjectId()->getId()] = spl_object_hash($object);
     }
 
     /**
@@ -222,6 +232,7 @@ class ObjectMapper {
         foreach ($this->oIdToPHPId as $key => $pObject) {     
             $arr[$pObject->getClass()->getName()][] = $pObject;
             unset($this->oIdToPHPId[$key]);
+            unset($this->phpIdToOId[$pObject->getObjectId()->getId()]);
         }
         
         $this->session->getDatabase()->insertArray($arr);

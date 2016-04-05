@@ -134,12 +134,9 @@ class FeatherDatabase implements Database
     public function delete(PConstraint $constraint)
     {
         $resultSet = $this->fileManager->fetchConstraint($constraint);
-
         $this->fileManager->deleteArray($resultSet);
-        
-
         $this->writeLatestObjectId();
-        return count($resultSet);
+        return $resultSet;
     }
 
     /**

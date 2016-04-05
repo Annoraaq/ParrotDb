@@ -10,7 +10,6 @@ use \ParrotDb\Query\Constraint\PNotConstraint;
 use \ParrotDb\Query\Constraint\PRelationConstraint;
 use \ParrotDb\Query\LotB\Parser\Parser;
 use \ParrotDb\Query\LotB\Tokenizer;
-use \ParrotDb\Core\ObjectMapper;
 
 require_once  dirname(__FILE__) . "/testclasses/Author.php";
 require_once  dirname(__FILE__) . "/testclasses/TestRec.php";
@@ -931,8 +930,8 @@ class PPersistanceManagerFeatherTest  extends \PHPUnit_Framework_TestCase
         
         
         $this->pm->delete($constraint);
-        $result = $this->pm->commit();
-        $this->assertEquals(2, $result);
+        $delCounter = $this->pm->commit();
+        $this->assertEquals(2, $delCounter);
         $result = $this->pm->query($constraint);
         
         //var_dump($result);
@@ -1010,6 +1009,39 @@ class PPersistanceManagerFeatherTest  extends \PHPUnit_Framework_TestCase
         $this->assertEquals(2, $result->size());
         
        
+    }
+    
+    /**
+     * @covers ParrotDb\Core\PPersistanceManager::query
+     */
+    public function testDirtyness() {
+        $author = $this->createTestAuthor();
+        $this->pm->persist($author);
+        
+        $this->pm->commit();
+
+        //$constraint = new PClassConstraint("Author");
+        //$constraint->setAmount(1);
+        $parser = new Parser($this->session->getDatabase());
+        $constraint = $parser->parse('get Author');
+        $result = $this->pm->query($constraint);
+        
+        
+        $this->assertEquals(1, $result->size());
+        $fetchedAuthor = $result->first();
+        
+        $fetchedAuthor->setName("Piccolo");
+        
+        $this->pm->persist($fetchedAuthor);
+        $this->pm->commit();
+        
+        $result = $this->pm->query($constraint);
+        $this->assertEquals(1, $result->size());
+        
+        $this->assertEquals("Piccolo", $result->first()->getName());
+        
+        
+
     }
     
     /**

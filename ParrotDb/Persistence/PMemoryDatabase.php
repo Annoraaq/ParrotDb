@@ -99,7 +99,7 @@ class PMemoryDatabase implements Database {
             $this->deleteSingle($elem->getObjectId());
         }
         
-        return $resultSet->size();
+        return $resultSet;
     }
 
     /**

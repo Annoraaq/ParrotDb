@@ -120,6 +120,7 @@ class XmlDatabase implements Database
     {
         $this->constraintProcessor->setPersistedObjects($this->fileManager->fetchAll());
         $resultSet = $this->constraintProcessor->process($constraint);
+       
 
         $toDelete = array();
         foreach ($resultSet as $elem) {
@@ -129,7 +130,7 @@ class XmlDatabase implements Database
         }
 
         $this->writeLatestObjectId();
-        return count($toDelete);
+        return $resultSet;
     }
 
     /**

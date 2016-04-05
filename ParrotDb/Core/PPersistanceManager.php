@@ -67,6 +67,16 @@ class PPersistanceManager
     {
         $this->toPersist[spl_object_hash($object)] = $object;
     }
+    
+    /**
+     * Remove PHP object to list of objects to be persisted on commit
+     * 
+     * @param mixed $object
+     */
+    public function unpersist($object)
+    {
+        unset($this->toPersist[spl_object_hash($object)]);
+    }
 
     /**
      * Makes all "to persist" PHP objects persistance ready
@@ -76,23 +86,26 @@ class PPersistanceManager
     {
         
         $counter = 0;
-        foreach ($this->toDelete as $className => $arr) {
-            $temp = $arr[0];
-            $arr[0] = $temp->getConstraint();
-            $constr = new POrConstraint($arr);
-            $temp->setConstraint($constr);
-            
-            $counter += $this->session->getDatabase()->delete($temp);
-            unset($this->toDelete[$className]);
-        }
-        
-        
+
         foreach ($this->toPersist as $key => $obj) {
             $this->objectMapper->makePersistanceReady($obj);
             unset($this->toPersist[$key]);
         }
 
         $this->objectMapper->commit();
+        
+        foreach ($this->toDelete as $className => $arr) {
+            $temp = $arr[0];
+            $arr[0] = $temp->getConstraint();
+            $constr = new POrConstraint($arr);
+            $temp->setConstraint($constr);
+            
+            $resultSet = $this->session->getDatabase()->delete($temp);
+
+            $counter += $resultSet->size();
+
+            unset($this->toDelete[$className]);
+        }
         
         return $counter;
     }
@@ -101,14 +114,17 @@ class PPersistanceManager
      * Fetches the object with the given object id from database.
      * 
      * @param PObjectId $objectId
+     * @param boolean $autoPersist States if fetched object should be persisted or not.
      * @return object
      */
-    public function fetch(PObjectId $objectId)
+    public function fetch(PObjectId $objectId, $autoPersist = true)
     {
         $pObject = $this->session->getDatabase()->fetch($objectId);
         $res = $this->objectMapper->fromPObject($pObject);
-        $this->persist($res);
-        $this->objectMapper->addToPersistedMemory($res, $pObject);
+        if ($autoPersist) {
+            $this->persist($res);
+            $this->objectMapper->addToPersistedMemory($res, $pObject);
+        }
         return $res;
     }
 
@@ -116,17 +132,23 @@ class PPersistanceManager
      * Queries the database.
      * 
      * @param PConstraint $constraint
+     * @param boolean $autoPersist States if fetched object should be persisted or not
      * @return PResultSet
      */
-    public function query(PConstraint $constraint)
+    public function query(PConstraint $constraint, $autoPersist = true)
     {
         $resultSet = $this->session->getDatabase()->query($constraint);
         $newResultSet = new PResultSet();
 
         foreach ($resultSet as $result) {
+            $object = $this->objectMapper->fromPObject($result);
             $newResultSet->add(
-             $this->objectMapper->fromPObject($result)
+             $object
             );
+            if ($autoPersist) {
+                $this->persist($object);
+                $this->objectMapper->addToPersistedMemory($object, $result);
+            }
         }
 
         return $newResultSet;
