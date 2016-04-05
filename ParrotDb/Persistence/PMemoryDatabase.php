@@ -37,7 +37,10 @@ class PMemoryDatabase implements Database {
     
     private $indexes;
     
+    private $config;
+    
     public function __construct() {
+        $this->config = new \ParrotDb\Core\PConfig();
         $this->constraintProcessor = new PMemoryConstraintProcessor();
         $this->latestObjectId = 0;
         $this->indexes = array();
@@ -204,6 +207,11 @@ class PMemoryDatabase implements Database {
                 $this->insert($te);
             }
         }
+    }
+    
+    public function getConfig()
+    {
+        return $this->config;
     }
 
 }

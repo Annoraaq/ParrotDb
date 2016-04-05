@@ -87,5 +87,11 @@ interface Database {
     public function addIndex($className, $attributeName);
 
 
+    /**
+     * Returns the database config
+     * 
+     * @return \ParrotDb\Core\PConfig
+     */
+    public function getConfig();
     
 }

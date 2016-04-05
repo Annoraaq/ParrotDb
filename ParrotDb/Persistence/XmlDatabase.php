@@ -29,12 +29,15 @@ class XmlDatabase implements Database
     
     private $name;
     private $latestObjectId;
+    
+    private $config;
 
     /**
      * @param string $name
      */
     public function __construct($name)
     {
+        $this->config = new \ParrotDb\Core\PConfig();
         $this->constraintProcessor = new PXmlConstraintProcessor();
         $this->fileManager = new XmlFileManager($name);
         $this->name = $name;
@@ -229,6 +232,11 @@ class XmlDatabase implements Database
                 $this->insert($te);
             }
         }
+    }
+    
+    public function getConfig()
+    {
+        return $this->config;
     }
 
 }

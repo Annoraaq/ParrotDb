@@ -242,9 +242,10 @@ class ObjectMapper {
      * Instantiates a PHP object from the given PObject
      * 
      * @param PObject $pObject
+     * @param int $depth
      * @return Object
      */
-    public function instantiate(PObject $pObject) {
+    public function instantiate(PObject $pObject, $depth) {
         $pClass = $pObject->getClass();
         
         $reflectionClass = new \ReflectionClass("\\" . $pClass->getName());
@@ -253,7 +254,7 @@ class ObjectMapper {
         
         $this->instantiationLocks[$pObject->getObjectId()->getId()] = $instance;
 
-        $this->setProperties($instance, $pObject);
+        $this->setProperties($instance, $pObject, $depth);
 
         return $instance;
     }
@@ -263,8 +264,9 @@ class ObjectMapper {
      * 
      * @param Object $instance
      * @param PObject $pObject
+     * @param int $depth
      */
-    private function setProperties($instance, PObject $pObject) {
+    private function setProperties($instance, PObject $pObject, $depth) {
         $pClass = $pObject->getClass();
         
         foreach ($pClass->getFields() as $field) {
@@ -275,17 +277,30 @@ class ObjectMapper {
             $value = $pObject->getAttributes()[$field]->getValue();
 
             if ($value instanceof PObjectId) {
-                $value = $this->fromPObject(
-                    $this->session->getDatabase()->fetch($value)
-                );
+                
+                if ($this->isInActivationDepth($depth)) {
+                    $value = $this->fromPObject(
+                        $this->session->getDatabase()->fetch($value), $depth + 1
+                    );
+                } else {
+                    echo "more than activation depth!\n";
+
+                }
             } else if (PUtils::isArray($value)) {
-                $value = $this->fromArray($value);
+                $value = $this->fromArray($value, $depth + 1);
             }
 
             $property->setValue(
              $instance, $value
             );
         }
+    }
+    
+    private function isInActivationDepth($depth) {
+        $activationDepth = $this->session->getDatabase()
+                    ->getConfig()->activationDepth;
+        
+        return (($activationDepth == -1) || ($depth < $activationDepth));
     }
 
     /**
@@ -316,17 +331,18 @@ class ObjectMapper {
      * Recursively map all entries of the given array.
      * 
      * @param array $arr
+     * @param int $depth
      * @return array
      */
-    private function fromArray($arr) {
+    private function fromArray($arr, $depth = 0) {
         $newArr = array();
 
         foreach ($arr as $key => $val) {
 
             if (PUtils::isAssoc($arr)) {
-                $newArr[$key] = $this->mapAttribute($val);
+                $newArr[$key] = $this->mapAttribute($val, $depth+1);
             } else {
-                $newArr[] = $this->mapAttribute($val);
+                $newArr[] = $this->mapAttribute($val, $depth+1);
             }
         }
 
@@ -337,15 +353,21 @@ class ObjectMapper {
      * Maps an entry of an array depending on it's type.
      * 
      * @param mixed $attribute
+     * @param int $depth
      * @return mixed
      */
-    public function mapAttribute($attribute) {
+    public function mapAttribute($attribute, $depth = 0) {
         if (PUtils::isObject($attribute)) {
-            return $this->fromPObject(
-                $this->session->getDatabase()->fetch($attribute)
-            );
+            
+            if ($this->isInActivationDepth($depth)) {
+                return $this->fromPObject(
+                    $this->session->getDatabase()->fetch($attribute), $depth+1
+                );
+            } else {
+                return $attribute;
+            }
         } else if (PUtils::isArray($attribute)) {
-            return $this->fromArray($attribute);
+            return $this->fromArray($attribute, $depth + 1);
         }
     }
     
@@ -356,13 +378,13 @@ class ObjectMapper {
      * @return Object
      * @throws PException
      */
-    public function fromPObject(PObject $pObject) {
+    public function fromPObject(PObject $pObject, $depth = 0) {
 
         if (isset($this->instantiationLocks[$pObject->getObjectId()->getId()])) {
             return $this->instantiationLocks[$pObject->getObjectId()->getId()];
         } 
 
-        $instance = $this->instantiate($pObject);
+        $instance = $this->instantiate($pObject, $depth);
         unset($this->instantiationLocks[$pObject->getObjectId()->getId()]);
         
         return $instance;

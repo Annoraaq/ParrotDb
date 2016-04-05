@@ -20,7 +20,6 @@ class PSession
 
     private $filePath;
     private $database;
-    private $config;
 
     public function __construct($filePath, $dbEngine)
     {

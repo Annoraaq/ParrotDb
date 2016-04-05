@@ -51,10 +51,6 @@ class FeatherDatabase implements Database
 
         $this->readLatestObjectId();
     }
-    
-    public function getConfig() {
-        return $this->config;
-    }
 
 
     private function getDbPath()
@@ -233,6 +229,11 @@ class FeatherDatabase implements Database
     public function addIndex($className, $attributeName)
     {
         
+    }
+
+    public function getConfig()
+    {
+        return $this->config;
     }
 
 }

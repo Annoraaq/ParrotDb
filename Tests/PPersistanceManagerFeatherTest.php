@@ -1079,6 +1079,21 @@ class PPersistanceManagerFeatherTest  extends \PHPUnit_Framework_TestCase
     }
     
     
+    public function testActivationDepth() {
+        $this->session->getDatabase()->getConfig()->activationDepth = 0;
+        $author = $this->createTestAuthor();
+        $this->pm->persist($author);
+        
+        $this->pm->commit();
+
+        $parser = new Parser($this->session->getDatabase());
+        $constraint = $parser->parse('get 1 Author');
+        $result = $this->pm->query($constraint);
+        
+        $this->assertTrue($result->first()->publication instanceof PObjectId);
+    }
+    
+    
     /**
      * @covers ParrotDb\Core\PPersistanceManager::query
      */
