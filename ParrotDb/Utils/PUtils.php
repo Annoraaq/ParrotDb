@@ -40,6 +40,16 @@ class PUtils {
     }
     
     /**
+     * Checks, whether the given variable is of type string or not.
+     * 
+     * @param mixed $value
+     * @return boolean
+     */
+    public static function isString($value) {
+        return (gettype($value) == "string");
+    }
+    
+    /**
      * Checks, whether given string is a single digit number.
      * 
      * @param string $word
@@ -159,6 +169,62 @@ class PUtils {
     public static function cutHeadAndTail($input)
     {
         return self::cutLastChar(self::cutFirstChar($input));
+    }
+    
+    /**
+     * Escapes special characters with a backslash
+     * 
+     * @param mixed $value
+     * @return boolean
+     */
+    public static function escape($value) {
+        
+        $toEscape = "[],c\\";
+        
+        $output = "";
+        
+        for ($i=0; $i<mb_strlen($value); $i++) {
+            if (self::contains($toEscape, $value[$i])) {
+                $output .= "\\";
+            }
+            
+            $output .= $value[$i];
+        }
+        
+        return $output;
+    }
+    
+    /**
+     * Unescapes special characters with a backslash
+     * 
+     * @param mixed $value
+     * @return boolean
+     */
+    public static function unescape($value) {
+        
+        $output = "";
+        
+        $deleted = false;
+        for ($i=0; $i<mb_strlen($value); $i++) {
+            
+            if ($value[$i] == "\\") {
+                if (!$deleted) {
+                    $deleted = true;
+                } else {
+                    $deleted = false;
+                    $output .= $value[$i];
+                }
+            } else {
+                $deleted = false;
+                $output .= $value[$i];
+            }
+        }
+        
+        return $output;
+    }
+    
+    public static function contains($haystack, $needle) {
+        return (strpos($haystack, $needle) !== false);
     }
 
 }

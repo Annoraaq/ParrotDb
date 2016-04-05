@@ -132,6 +132,45 @@ class VirtualStringTest extends \PHPUnit_Framework_TestCase
     /**
      * @covers ParrotDb\Persistence\Xml\XmlSerializer::serialize
      */
+    public function testVirtualStringGetIntervalUnEscaped() {
+        
+       $input = "abcdef[hij]klmnopqrstuvwxyz";
+       
+       $file = fopen("testfile.txt", "w");
+       fwrite($file, $input);
+       fclose($file);
+       
+       $virtualString = new VirtualString("testfile.txt", 5);
+       $virtualString->open();
+       
+       $this->assertEquals('hij',$virtualString->getNextInterval(0, '[', ']'));
+       
+       
+       $virtualString->close();
+    }
+    
+    /**
+     * @covers ParrotDb\Persistence\Xml\XmlSerializer::serialize
+     */
+    public function testVirtualStringGetIntervalEscaped() {
+        
+       $input = "abcdef\[hij]klm[no]pqrstuvwxyz";
+       
+       $file = fopen("testfile.txt", "w");
+       fwrite($file, $input);
+       fclose($file);
+       
+       $virtualString = new VirtualString("testfile.txt", 5);
+       $virtualString->open();
+       
+       $this->assertEquals('no',$virtualString->getNextInterval(0, '[', ']'));
+       
+       $virtualString->close();
+    }
+    
+    /**
+     * @covers ParrotDb\Persistence\Xml\XmlSerializer::serialize
+     */
     public function testVirtualStringGetIntervalSame() {
         
        $input = "abcdeaghijklmnopqrstuvwxyz";

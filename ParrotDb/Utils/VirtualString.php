@@ -136,6 +136,45 @@ class VirtualString
     }
     
     /**
+     * @param string $needle
+     * @param int offset
+     * 
+     * @return int Position of $needle; -1 if not found
+     */
+    public function findFirstUnescaped($needle, $offset = 0) {
+        $length = mb_strlen($needle);
+        
+        $pos = $offset;
+        
+        // :performance
+        // make this faster by not loading the whole substring for every position
+        while (true) {
+           
+            if ($pos > 0) {
+               $first = $this->substr($pos-1, $pos);
+               $substr = $this->substr($pos, $pos+$length);
+               if ($first == '\\') {
+                   $pos++;
+                   continue;
+               }
+            } else {
+                $substr = $this->substr($pos, $pos+$length);
+            }
+
+            if (strlen($substr) < $length) {
+                return -1;
+            }
+            
+            if ($needle == $substr) {
+                return $pos;
+            }
+            
+            $pos++;
+        }
+
+    }
+    
+    /**
      * @param int $start
      * @param string $leftBorder
      * @param string $rightBorder
@@ -147,8 +186,8 @@ class VirtualString
      */
     public function getNextInterval($start, $leftBorder, $rightBorder) {
         
-        $leftPos = $this->findFirst($leftBorder, $start);
-        $rightPos = $this->findFirst($rightBorder, $leftPos+1);
+        $leftPos = $this->findFirstUnescaped($leftBorder, $start);
+        $rightPos = $this->findFirstUnescaped($rightBorder, $leftPos+1);
         
         if ($leftPos == (-1) || $rightPos == (-1)) {
             throw new PException("Borders not found.");

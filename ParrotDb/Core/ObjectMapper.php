@@ -140,6 +140,8 @@ class ObjectMapper {
             $value = $this->makePersistanceReady($value);
         } else if (PUtils::isArray($value)) {
             $value = $this->persistArray($value);
+        } else if (PUtils::isString($value)) {
+            $value = PUtils::escape($value);
         }
 
         return $value;
@@ -288,6 +290,8 @@ class ObjectMapper {
                 }
             } else if (PUtils::isArray($value)) {
                 $value = $this->fromArray($value, $depth + 1);
+            } else if (PUtils::isString($value)) {
+                $value = PUtils::unescape($value);
             }
 
             $property->setValue(
@@ -368,6 +372,8 @@ class ObjectMapper {
             }
         } else if (PUtils::isArray($attribute)) {
             return $this->fromArray($attribute, $depth + 1);
+        } else if (PUtils::isString($attribute)) {
+            return PUtils::unescape($attribute);
         }
     }
     

@@ -1093,6 +1093,22 @@ class PPersistanceManagerFeatherTest  extends \PHPUnit_Framework_TestCase
         $this->assertTrue($result->first()->publication instanceof PObjectId);
     }
     
+    public function testEscaping() {
+        $author = $this->createTestAuthor();
+        $author->setName("Mr [Satan]");
+        $this->pm->persist($author);
+        
+        $this->pm->commit();
+
+        $parser = new Parser($this->session->getDatabase());
+        $constraint = $parser->parse('get Author');
+        $result = $this->pm->query($constraint);
+        
+        $this->assertEquals("Mr [Satan]", $result->first()->getName());
+        
+       
+    }
+    
     
     /**
      * @covers ParrotDb\Core\PPersistanceManager::query
