@@ -94,4 +94,5 @@ interface Database {
      */
     public function getConfig();
     
+    
 }

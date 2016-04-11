@@ -18,6 +18,7 @@ class FeatherFileManager
 
     const DB_PATH = "pdb/";
     const DB_FILE_ENDING = ".pdb";
+    const DB_LOCK_FILE_ENDING = ".lck";
 
     protected $file;
     protected $objectSerializer;

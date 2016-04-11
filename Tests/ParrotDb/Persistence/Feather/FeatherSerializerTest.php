@@ -51,9 +51,7 @@ class FeatherSerializerTest extends \PHPUnit_Framework_TestCase {
      * This method is called after a test is executed.
      */
     protected function tearDown() {
-        if ($this->session != null) {
-            $this->session->close();
-        }
+        PSessionFactory::closeSession("Feather");
     }
     
     private function createTestAuthor() {

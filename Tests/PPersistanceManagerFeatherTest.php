@@ -188,7 +188,7 @@ class PPersistanceManagerFeatherTest  extends \PHPUnit_Framework_TestCase
         $static = new \StaticStub();
         $human = $this->createTestAuthor();
         $this->pm->setConfigValue("ignoreStatic", true);
-        //\StaticStub::$human = "Test";
+
         \StaticStub::$human = $human;
 
         $this->pm->persist($static);

@@ -63,9 +63,7 @@ class FeatherParserTest extends \PHPUnit_Framework_TestCase
      * This method is called after a test is executed.
      */
     protected function tearDown() {
-        if ($this->session != null) {
-            $this->session->close();
-        }
+        PSessionFactory::closeSession("Feather");
         
         if (file_exists("pdb/Feather/Feather.pdb")) {
             unlink("pdb/Feather/Feather.pdb");

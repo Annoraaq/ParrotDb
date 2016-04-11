@@ -30,6 +30,8 @@ class FeatherDatabase implements Database
     private $name;
     private $latestObjectId;
     private $config;
+    
+    private $lockFile;
 
     /**
      * @param string $name
@@ -43,11 +45,21 @@ class FeatherDatabase implements Database
 
         $dbPath = FeatherFileManager::DB_PATH
                 . $name . '/' . $name . FeatherFileManager::DB_FILE_ENDING;
+        
+        $lockPath = FeatherFileManager::DB_PATH
+                . $name . '/' . $name . FeatherFileManager::DB_LOCK_FILE_ENDING;
+
+        
         if (!file_exists($dbPath)) {
             $file = fopen($dbPath, "w");
             fwrite($file, 0);
             fclose($file);
         }
+        
+//        $this->lockFile = fopen($lockPath, "w");
+//        flock($this->lockFile, LOCK_EX);
+//        //fclose($this->lockFile);
+//        echo "LOCK\n";
 
         $this->readLatestObjectId();
     }
@@ -235,5 +247,6 @@ class FeatherDatabase implements Database
     {
         return $this->config;
     }
+
 
 }

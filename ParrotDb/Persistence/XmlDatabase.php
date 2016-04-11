@@ -239,4 +239,5 @@ class XmlDatabase implements Database
         return $this->config;
     }
 
+
 }

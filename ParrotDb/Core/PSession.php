@@ -64,7 +64,8 @@ class PSession
      */
     public function close()
     {
-        PSessionFactory::closeSession($this->filePath);
+        $this->database->close();
+        //PSessionFactory::closeSession($this->filePath);
     }
 
     /**
