@@ -27,48 +27,46 @@ class FeatherDatabase implements Database
     protected $constraintProcessor;
     protected $markedForDeletion;
     protected $fileManager;
+    private $path;
     private $name;
     private $latestObjectId;
     private $config;
-    
-    private $lockFile;
+
 
     /**
-     * @param string $name
+     * @param string $path
      */
-    public function __construct($name)
+    public function __construct($path, $configPath = null)
     {
-        $this->config = new PConfig();
+        $this->config = new PConfig($configPath);
+
         $this->constraintProcessor = new PXmlConstraintProcessor();
-        $this->fileManager = new FeatherFileManager($name, $this->config);
-        $this->name = $name;
+        $this->fileManager = new FeatherFileManager($path, $this->config);
+        $this->path = $path;
 
-        $dbPath = FeatherFileManager::DB_PATH
-                . $name . '/' . $name . FeatherFileManager::DB_FILE_ENDING;
-        
-        $lockPath = FeatherFileManager::DB_PATH
-                . $name . '/' . $name . FeatherFileManager::DB_LOCK_FILE_ENDING;
+        $this->name = substr(strrchr($path, '/'),1);
 
-        
+        $dbPath = $path . '/' . $this->name . FeatherFileManager::DB_INFO_FILE_ENDING;
+
+        // check directory
+        if (!is_dir($path)) {
+            mkdir ($path, 0777, true);
+        }
+
+
         if (!file_exists($dbPath)) {
             $file = fopen($dbPath, "w");
             fwrite($file, 0);
             fclose($file);
         }
-        
-//        $this->lockFile = fopen($lockPath, "w");
-//        flock($this->lockFile, LOCK_EX);
-//        //fclose($this->lockFile);
-//        echo "LOCK\n";
-
         $this->readLatestObjectId();
     }
 
 
     private function getDbPath()
     {
-        return FeatherFileManager::DB_PATH . $this->name
-            . '/' . $this->name . FeatherFileManager::DB_FILE_ENDING;
+        return $this->path
+            . '/' . $this->name . FeatherFileManager::DB_INFO_FILE_ENDING;
     }
     
     private function readLatestObjectId()
@@ -245,7 +243,9 @@ class FeatherDatabase implements Database
 
     public function getConfig()
     {
+        //$this->config = new PConfig();
         return $this->config;
+        //return new PConfig();
     }
 
 

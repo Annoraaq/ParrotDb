@@ -25,19 +25,21 @@ class FeatherParserTest extends \PHPUnit_Framework_TestCase
      */
     protected function setUp()
     {
+
+        $path = dirname(__FILE__) . "/pdb/Feather/";
         
-        $this->session = PSessionFactory::createSession("Feather", \ParrotDb\Core\PSession::DB_FEATHER);
+        $this->session = PSessionFactory::createSession(dirname(__FILE__) . "/pdb/Feather", \ParrotDb\Core\PSession::DB_FEATHER);
         $this->pm = $this->session->createPersistenceManager();
         
-        if (file_exists("pdb/Feather/Feather.pdb")) {
-            unlink("pdb/Feather/Feather.pdb");
+        if (file_exists($path . "Feather.pfo")) {
+            unlink($path . "Feather.pfo");
         }
         
-        if (file_exists("pdb/Feather/Author.pdb")) {
-            unlink("pdb/Feather/Author.pdb");
+        if (file_exists($path . "Author.pdb")) {
+            unlink($path . "Author.pdb");
         }
         
-        $this->parser = new FeatherParser("pdb/Feather/Author.pdb");
+        $this->parser = new FeatherParser($path . "Author.pdb");
         
     }
     
@@ -63,14 +65,14 @@ class FeatherParserTest extends \PHPUnit_Framework_TestCase
      * This method is called after a test is executed.
      */
     protected function tearDown() {
-        PSessionFactory::closeSession("Feather");
-        
-        if (file_exists("pdb/Feather/Feather.pdb")) {
-            unlink("pdb/Feather/Feather.pdb");
+        PSessionFactory::closeSession(dirname(__FILE__) . "/pdb/Feather");
+        $path = dirname(__FILE__) . "/pdb/Feather/";
+        if (file_exists($path . "Feather.pfo")) {
+            unlink($path . "Feather.pfo");
         }
-        
-        if (file_exists("pdb/Feather/Author.pdb")) {
-            unlink("pdb/Feather/Author.pdb");
+
+        if (file_exists($path . "Author.pdb")) {
+            unlink($path . "Author.pdb");
         }
     }
 
@@ -174,15 +176,4 @@ class FeatherParserTest extends \PHPUnit_Framework_TestCase
         ));
     }
 
-    /**
-     * @covers ParrotDb\Persistence\Feather\FeatherParser::parse
-     * @todo   Implement testParse().
-     */
-    public function testParse()
-    {
-        // Remove the following lines when you implement this test.
-        $this->markTestIncomplete(
-            'This test has not been implemented yet.'
-        );
-    }
 }

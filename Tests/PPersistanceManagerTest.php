@@ -39,27 +39,27 @@ class PPersistanceManagerTest extends \PHPUnit_Framework_TestCase
     {
         
 
-        $this->session = PSessionFactory::createSession("Testfile", PSession::DB_MEMORY);
+        $this->session = PSessionFactory::createSession(dirname(__FILE__) . "/pdb/Testfile", PSession::DB_MEMORY);
         $this->pm = $this->session->createPersistenceManager();
         
-        if (file_exists("pdb/Testfile/Testfile.pdb")) {
-            unlink("pdb/Testfile/Testfile.pdb");
+        if (file_exists(dirname(__FILE__) . "/pdb/Testfile/Testfile.pfo")) {
+            unlink(dirname(__FILE__) . "/pdb/Testfile/Testfile.pfo");
         }
         
-       if (file_exists("pdb/Testfile/Author.pdb")) {
-            unlink("pdb/Testfile/Author.pdb");
+       if (file_exists(dirname(__FILE__) . "/pdb/Testfile/Author.pdb")) {
+            unlink(dirname(__FILE__) . "/pdb/Testfile/Author.pdb");
         }
         
-        if (file_exists("pdb/Testfile/Publication.pdb")) {
-            unlink("pdb/Testfile/Publication.pdb");
+        if (file_exists(dirname(__FILE__) . "/pdb/Testfile/Publication.pdb")) {
+            unlink(dirname(__FILE__) . "/pdb/Testfile/Publication.pdb");
         }
         
-        if (file_exists("pdb/Testfile/PrivateConstructor.pdb")) {
-            unlink("pdb/Testfile/PrivateConstructor.pdb");
+        if (file_exists(dirname(__FILE__) . "/pdb/Testfile/PrivateConstructor.pdb")) {
+            unlink(dirname(__FILE__) . "/pdb/Testfile/PrivateConstructor.pdb");
         }
         
-        if (file_exists("pdb/Testfile/StaticStub.pdb")) {
-            unlink("pdb/Testfile/StaticStub.pdb");
+        if (file_exists(dirname(__FILE__) . "/pdb/Testfile/StaticStub.pdb")) {
+            unlink(dirname(__FILE__) . "/pdb/Testfile/StaticStub.pdb");
         }
         
         
@@ -71,25 +71,27 @@ class PPersistanceManagerTest extends \PHPUnit_Framework_TestCase
      */
     protected function tearDown()
     {
-       PSessionFactory::closeSession("Testfile");
+       PSessionFactory::closeSession(dirname(__FILE__) . "/pdb/Testfile");
+
+        $path = dirname(__FILE__) . "/pdb/Testfile/";
        
-       if (file_exists("pdb/Testfile/Testfile.pdb")) {
-            unlink("pdb/Testfile/Testfile.pdb");
-        }
-       if (file_exists("pdb/Testfile/Author.pdb")) {
-            unlink("pdb/Testfile/Author.pdb");
-        }
-        
-        if (file_exists("pdb/Testfile/Publication.pdb")) {
-            unlink("pdb/Testfile/Publication.pdb");
+       if (file_exists($path . "Testfile.pfo")) {
+            unlink($path . "Testfile.pfo");
+       }
+       if (file_exists($path . "Author.pdb")) {
+            unlink($path . "Author.pdb");
         }
         
-        if (file_exists("pdb/Testfile/PrivateConstructor.pdb")) {
-            unlink("pdb/Testfile/PrivateConstructor.pdb");
+        if (file_exists($path . "Publication.pdb")) {
+            unlink($path . "Publication.pdb");
         }
         
-        if (file_exists("pdb/Testfile/StaticStub.pdb")) {
-            unlink("pdb/Testfile/StaticStub.pdb");
+        if (file_exists($path . "PrivateConstructor.pdb")) {
+            unlink($path . "PrivateConstructor.pdb");
+        }
+        
+        if (file_exists($path . "StaticStub.pdb")) {
+            unlink($path . "StaticStub.pdb");
         }
     }
     
@@ -258,17 +260,7 @@ class PPersistanceManagerTest extends \PHPUnit_Framework_TestCase
         
     }
 
-    /**
-     * @covers ParrotDb\Core\PPersistanceManager::fetch
-     * @todo   Implement testFetch().
-     */
-    public function testFetch()
-    {
-        // Remove the following lines when you implement this test.
-        $this->markTestIncomplete(
-            'This test has not been implemented yet.'
-        );
-    }
+
     
     public function testClassConstraint() {
         $author = $this->createTestAuthor();

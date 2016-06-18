@@ -216,12 +216,12 @@ class PPersistanceManager
         return $this->session->getDatabase()->getConfig();
     }
     
-    public function setConfigValue($name, $value) {
-        $cfg = $this->session->getDatabase()->getConfig();
-        
-        if (property_exists($cfg, $name)) {
-            $cfg->{$name} = $value;
-        }
-    }
+//    public function setConfigValue($name, $value) {
+//        $cfg = $this->session->getDatabase()->getConfig();
+//
+//        if (property_exists($cfg, $name)) {
+//            $cfg->{$name} = $value;
+//        }
+//    }
 
 }

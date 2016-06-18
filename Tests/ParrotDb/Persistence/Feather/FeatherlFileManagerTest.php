@@ -6,6 +6,7 @@ use \ParrotDb\Core\PSessionFactory;
 use \ParrotDb\Core\PSession;
 use \ParrotDb\ObjectModel\PObjectId;
 use \ParrotDb\Core\ObjectMapper;
+use \ParrotDb\Core\PConfig;
 
 
 require_once dirname(__FILE__) . "/../../../testclasses/Author.php";
@@ -32,27 +33,30 @@ class FeatherFileManagerTest extends \PHPUnit_Framework_TestCase {
      * This method is called before a test is executed.
      */
     protected function setUp() {
-        $this->fileManager = new FeatherFileManager("Feather", new \ParrotDb\Core\PConfig());
+
+        $path = dirname(__FILE__) . "/pdb/Feather/";
+
+        $this->fileManager = new FeatherFileManager(dirname(__FILE__) . "/pdb/Feather", new PConfig());
         $this->session = PSessionFactory::createSession(
-            "Feather",
+            dirname(__FILE__) . "/pdb/Feather",
             PSession::DB_FEATHER
         );
         $this->pm = $this->session->createPersistenceManager();
         
-        if (file_exists("pdb/Feather/Feather.pdb")) {
-            unlink("pdb/Feather/Feather.pdb");
+        if (file_exists($path . "Feather.pfo")) {
+            unlink($path . "Feather.pfo");
         }
         
-       if (file_exists("pdb/Feather/Author.pdb")) {
-            unlink("pdb/Feather/Author.pdb");
+       if (file_exists($path . "Author.pdb")) {
+            unlink($path . "Author.pdb");
         }
         
-        if (file_exists("pdb/Feather/Publication.pdb")) {
-            unlink("pdb/Feather/Publication.pdb");
+        if (file_exists($path . "Publication.pdb")) {
+            unlink($path . "Publication.pdb");
         }
         
-        if (file_exists("pdb/Feather/PrivateConstructor.pdb")) {
-            unlink("pdb/Feather/PrivateConstructor.pdb");
+        if (file_exists($path . "PrivateConstructor.pdb")) {
+            unlink($path . "PrivateConstructor.pdb");
         }
         
 
@@ -65,7 +69,7 @@ class FeatherFileManagerTest extends \PHPUnit_Framework_TestCase {
      * This method is called after a test is executed.
      */
     protected function tearDown() {
-        PSessionFactory::closeSession("Feather");
+        PSessionFactory::closeSession(dirname(__FILE__) . "/pdb/Feather");
     }
     
     private function createTestAuthor() {

@@ -14,6 +14,8 @@ use \ParrotDb\Core\ObjectMapper;
 
 require_once  dirname(__FILE__) . "/testclasses/Author.php";
 require_once  dirname(__FILE__) . "/testclasses/TestRec.php";
+require_once  dirname(__FILE__) . "/testclasses/StaticStub.php";
+require_once  dirname(__FILE__) . "/testclasses/PrivateConstructor.php";
 require_once  dirname(__FILE__) . "/testclasses/Publication.php";
 
 
@@ -37,28 +39,28 @@ class PPersistanceManagerXmlTest  extends \PHPUnit_Framework_TestCase
      */
     protected function setUp()
     {
-       
 
-        $this->session = PSessionFactory::createSession("Testfile", PSession::DB_XML);
+        $path = dirname(__FILE__) . "/pdb/Testfile/";
+        $this->session = PSessionFactory::createSession(dirname(__FILE__) . "/pdb/Testfile" , PSession::DB_XML);
         $this->pm = $this->session->createPersistenceManager();
         
-        if (file_exists("pdb/Testfile/Testfile.pdb")) {
-            unlink("pdb/Testfile/Testfile.pdb");
+        if (file_exists($path . "Testfile.pfo")) {
+            unlink($path . "Testfile.pfo");
         }
-       if (file_exists("pdb/Testfile/Author.pdb")) {
-            unlink("pdb/Testfile/Author.pdb");
-        }
-        
-        if (file_exists("pdb/Testfile/Publication.pdb")) {
-            unlink("pdb/Testfile/Publication.pdb");
+       if (file_exists($path . "Author.pdb")) {
+            unlink($path . "Author.pdb");
         }
         
-        if (file_exists("pdb/Testfile/PrivateConstructor.pdb")) {
-            unlink("pdb/Testfile/PrivateConstructor.pdb");
+        if (file_exists($path . "Publication.pdb")) {
+            unlink($path . "Publication.pdb");
         }
         
-         if (file_exists("pdb/Testfile/StaticStub.pdb")) {
-            unlink("pdb/Testfile/StaticStub.pdb");
+        if (file_exists($path . "PrivateConstructor.pdb")) {
+            unlink($path . "PrivateConstructor.pdb");
+        }
+        
+         if (file_exists($path . "StaticStub.pdb")) {
+            unlink($path . "StaticStub.pdb");
         }
         
     }
@@ -69,25 +71,25 @@ class PPersistanceManagerXmlTest  extends \PHPUnit_Framework_TestCase
      */
     protected function tearDown()
     {
-       PSessionFactory::closeSession("Testfile");
-       if (file_exists("pdb/Testfile/Testfile.pdb")) {
-            unlink("pdb/Testfile/Testfile.pdb");
+        $path = dirname(__FILE__) . "/pdb/Testfile/";
+       PSessionFactory::closeSession(dirname(__FILE__) . "/pdb/Testfile");
+        if (file_exists($path . "Testfile.pfo")) {
+            unlink($path . "Testfile.pfo");
         }
-        
-        if (file_exists("pdb/Testfile/Author.pdb")) {
-            unlink("pdb/Testfile/Author.pdb");
-        } 
-       
-        if (file_exists("pdb/Testfile/Publication.pdb")) {
-            unlink("pdb/Testfile/Publication.pdb");
+        if (file_exists($path . "Author.pdb")) {
+            unlink($path . "Author.pdb");
         }
-        
-        if (file_exists("pdb/Testfile/PrivateConstructor.pdb")) {
-            unlink("pdb/Testfile/PrivateConstructor.pdb");
+
+        if (file_exists($path . "Publication.pdb")) {
+            unlink($path . "Publication.pdb");
         }
-        
-        if (file_exists("pdb/Testfile/StaticStub.pdb")) {
-            unlink("pdb/Testfile/StaticStub.pdb");
+
+        if (file_exists($path . "PrivateConstructor.pdb")) {
+            unlink($path . "PrivateConstructor.pdb");
+        }
+
+        if (file_exists($path . "StaticStub.pdb")) {
+            unlink($path . "StaticStub.pdb");
         }
     }
     
@@ -257,18 +259,6 @@ class PPersistanceManagerXmlTest  extends \PHPUnit_Framework_TestCase
         
     }
 
-    /**
-     * @covers ParrotDb\Core\PPersistanceManager::fetch
-     * @todo   Implement testFetch().
-     */
-    public function testFetch()
-    {
-        // Remove the following lines when you implement this test.
-        $this->markTestIncomplete(
-            'This test has not been implemented yet.'
-        );
-    }
-    
     public function testClassConstraint() {
         $author = $this->createTestAuthor();
         $author2 = $this->createTestAuthor();

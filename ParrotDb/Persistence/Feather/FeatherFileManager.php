@@ -16,9 +16,9 @@ use ParrotDb\Query\Constraint\PConstraint;
 class FeatherFileManager
 {
 
-    const DB_PATH = "pdb/";
     const DB_FILE_ENDING = ".pdb";
     const DB_LOCK_FILE_ENDING = ".lck";
+    const DB_INFO_FILE_ENDING = ".pfo";
 
     protected $file;
     protected $objectSerializer;
@@ -35,13 +35,15 @@ class FeatherFileManager
     private $config;
 
     /**
-     * @param string $dbName
+     * FeatherFileManager constructor.
+     * @param $dbPath
+     * @param PConfig $config
      */
-    public function __construct($dbName, PConfig $config)
+    public function __construct($dbPath, PConfig $config)
     {
         $this->fileExists = false;
-        $this->dbPath = static::DB_PATH . $dbName . '/';
-        $this->dbName = $dbName;
+        $this->dbPath = $dbPath . '/';
+        $this->dbName = $dbPath;
         $this->objectSerializer = new FeatherObjectSerializer();
         $this->classSerializer = new FeatherClassSerializer();
         $this->bufferManager = new FeatherBufferManager();
@@ -53,6 +55,7 @@ class FeatherFileManager
     private function toFilePath($className)
     {
         $cleanClassName = str_replace('\\', '-', $className);
+
         return ($this->dbPath
          . $cleanClassName
          . self::DB_FILE_ENDING
@@ -169,7 +172,7 @@ class FeatherFileManager
 
     private function isMemoryLimitReached()
     {
-        return ($this->charsStored >= $this->config->memoryLimit);
+        return ($this->charsStored >= $this->config->getMemoryLimit());
     }
 
     private function insertFirstObject()
@@ -270,10 +273,9 @@ class FeatherFileManager
         $featherParser = new FeatherParser($this->toFilePath($className));
         $featherParser->setInvalid($oid);
     }
-    
+
     /**
-     * @param string $className
-     * @param array $oIds
+     * @param $objects
      */
     public function deleteArray($objects)
     {

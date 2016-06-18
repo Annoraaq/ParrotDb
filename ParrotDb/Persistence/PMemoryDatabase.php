@@ -8,6 +8,7 @@ use \ParrotDb\Query\Constraint\PConstraint;
 use \ParrotDb\Query\Constraint\PMemoryConstraintProcessor;
 use \ParrotDb\Utils\PUtils;
 use \ParrotDb\Core\PException;
+use \ParrotDb\Core\PConfig;
 
 /**
  * Description of PMemoryDatabase
@@ -39,8 +40,8 @@ class PMemoryDatabase implements Database {
     
     private $config;
     
-    public function __construct() {
-        $this->config = new \ParrotDb\Core\PConfig();
+    public function __construct($configPath = null) {
+        $this->config = new PConfig($configPath);
         $this->constraintProcessor = new PMemoryConstraintProcessor();
         $this->latestObjectId = 0;
         $this->indexes = array();

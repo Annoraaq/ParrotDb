@@ -89,7 +89,7 @@ interface Database {
 
     /**
      * Returns the database config
-     * 
+     *
      * @return \ParrotDb\Core\PConfig
      */
     public function getConfig();

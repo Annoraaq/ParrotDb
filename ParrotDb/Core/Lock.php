@@ -2,6 +2,9 @@
 
 namespace ParrotDb\Core;
 
+
+use \ParrotDb\Persistence\Feather\FeatherFileManager;
+
 /**
  * Description of Lock
  *
@@ -9,32 +12,46 @@ namespace ParrotDb\Core;
  */
 class Lock
 {
-    private $path;
-    
+
+    const FILENAME = "lock.lck";
+
+    private $lock = null;
+
     /**
-     * @param string $path Path to logfile
+     * Lock constructor.
+     * @param $path Path of the directory to create the lock
      */
     public function __construct($path) {
-        $this->path = $path;
+        $this->lock = fopen($path . self::FILENAME, 'a');
     }
-    
+
+
     /**
-     * Lock
+     * Grabs the lock
+     * @return bool Success
      */
-    public function lock() {
-        $file = fopen($this->path, "w");
-        $result = flock($file, LOCK_EX | LOCK_NB);
-        fclose($file);
-        
+    public function lock()
+    {
+        if (is_resource($this->lock)) {
+            return flock($this->lock, LOCK_EX | LOCK_NB);
+        }
+        return false;
+    }
+
+    /**
+     * Release the lock
+     * @return bool Success
+     */
+    public function release()
+    {
+        $result = false;
+        if (is_resource($this->lock));
+        {
+            $result = flock($this->lock, LOCK_UN);
+            $result &= fclose($this->lock);
+            $this->lock = null;
+        }
         return $result;
     }
-    
-    /**
-     * Unlock
-     */
-    public function unlock() {
-        $file = fopen($this->path, "w");
-        flock($file, LOCK_UN);
-        fclose($file);
-    }
+
 }

@@ -211,7 +211,6 @@ class PObject implements Comparable
         return true;
 
         if ($this->objectId->getId() != $object->getObjectId()->getId()) {
-            echo "(" . $object->getObjectId()->getId() . ")";
             return false;
         }
         

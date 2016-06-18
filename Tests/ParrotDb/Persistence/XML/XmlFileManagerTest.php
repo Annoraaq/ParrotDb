@@ -32,27 +32,29 @@ class XmlFileManagerTest extends \PHPUnit_Framework_TestCase {
      * This method is called before a test is executed.
      */
     protected function setUp() {
-        $this->fileManager = new XmlFileManager("Testfile");
+
+        $path = dirname(__FILE__) . "/pdb/Testfile/";
+        $this->fileManager = new XmlFileManager(dirname(__FILE__) . "/pdb/Testfile");
         $this->session = PSessionFactory::createSession(
-            "Testfile",
+            dirname(__FILE__) . "/pdb/Testfile",
             PSession::DB_MEMORY
         );
         $this->pm = $this->session->createPersistenceManager();
         
-        if (file_exists("pdb/Testfile/Testfile.pdb")) {
-            unlink("pdb/Testfile/Testfile.pdb");
+        if (file_exists($path . "Testfile.pdb")) {
+            unlink($path . "Testfile.pdb");
         }
         
-       if (file_exists("pdb/Testfile/Author.pdb")) {
-            unlink("pdb/Testfile/Author.pdb");
+       if (file_exists($path . "Author.pdb")) {
+            unlink($path . "Author.pdb");
         }
         
-        if (file_exists("pdb/Testfile/Publication.pdb")) {
-            unlink("pdb/Testfile/Publication.pdb");
+        if (file_exists($path . "Publication.pdb")) {
+            unlink($path . "Publication.pdb");
         }
         
-        if (file_exists("pdb/Testfile/PrivateConstructor.pdb")) {
-            unlink("pdb/Testfile/PrivateConstructor.pdb");
+        if (file_exists($path . "PrivateConstructor.pdb")) {
+            unlink($path . "PrivateConstructor.pdb");
         }
         
 
@@ -65,7 +67,7 @@ class XmlFileManagerTest extends \PHPUnit_Framework_TestCase {
      * This method is called after a test is executed.
      */
     protected function tearDown() {
-        PSessionFactory::closeSession("Testfile");
+        PSessionFactory::closeSession(dirname(__FILE__) . "/pdb/Testfile");
     }
     
     private function createTestAuthor() {

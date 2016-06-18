@@ -108,7 +108,7 @@ class ObjectMapper {
             }
 
             
-            if (!$this->session->getDatabase()->getConfig()->ignoreStatic ||
+            if (!$this->session->getDatabase()->getConfig()->isIgnoreStatic() ||
                 !$property->isStatic()) {
                     $pObject->addAttribute(
                      $property->getName(), $this->createObjectValue($object, $property)
@@ -281,7 +281,7 @@ class ObjectMapper {
             $property = $this->findProperty($pClass, $field);
             $property->setAccessible(true);
             
-            if ($this->session->getDatabase()->getConfig()->ignoreStatic
+            if ($this->session->getDatabase()->getConfig()->isIgnoreStatic()
                 && $property->isStatic()) {
                 continue;
             }
@@ -294,9 +294,6 @@ class ObjectMapper {
                     $value = $this->fromPObject(
                         $this->session->getDatabase()->fetch($value), $depth + 1
                     );
-                } else {
-                    echo "more than activation depth!\n";
-
                 }
             } else if (PUtils::isArray($value)) {
                 $value = $this->fromArray($value, $depth + 1);
@@ -312,7 +309,7 @@ class ObjectMapper {
     
     private function isInActivationDepth($depth) {
         $activationDepth = $this->session->getDatabase()
-                    ->getConfig()->activationDepth;
+                    ->getConfig()->getActivationDepth();
         
         return (($activationDepth == -1) || ($depth < $activationDepth));
     }

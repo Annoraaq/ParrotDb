@@ -8,6 +8,7 @@ use \ParrotDb\Query\Constraint\PConstraint;
 use \ParrotDb\Query\Constraint\PXmlConstraintProcessor;
 use \ParrotDb\Utils\PUtils;
 use \ParrotDb\Core\PException;
+use \ParrotDb\Core\PConfig;
 use \ParrotDb\Persistence\XML\XmlFileManager;
 
 /**
@@ -26,24 +27,26 @@ class XmlDatabase implements Database
     protected $constraintProcessor;
     protected $markedForDeletion;
     protected $fileManager;
-    
+    private $config;
+    private $path;
     private $name;
     private $latestObjectId;
-    
-    private $config;
 
     /**
-     * @param string $name
+     * @param string $path
      */
-    public function __construct($name)
+    public function __construct($path, $configPath = null)
     {
-        $this->config = new \ParrotDb\Core\PConfig();
+
+        $this->config = new PConfig($configPath);
         $this->constraintProcessor = new PXmlConstraintProcessor();
-        $this->fileManager = new XmlFileManager($name);
-        $this->name = $name;
+        $this->fileManager = new XmlFileManager($path);
+        $this->path = $path;
+
+        $this->name = substr(strrchr($path, '/'),1);
         
-        if (!file_exists(XmlFileManager::DB_PATH . $name . '/' . $name . XmlFileManager::DB_FILE_ENDING)) {
-            $file = fopen(XmlFileManager::DB_PATH . $name . '/' . $name . XmlFileManager::DB_FILE_ENDING,"w");
+        if (!file_exists($path . '/' . $this->name . XmlFileManager::DB_INFO_FILE_ENDING)) {
+            $file = fopen($path . '/' . $this->name . XmlFileManager::DB_INFO_FILE_ENDING,"w");
             fwrite($file, 0);
             fclose($file);
         }
@@ -54,14 +57,16 @@ class XmlDatabase implements Database
     
     private function readLatestObjectId()
     {
-        $file = fopen(XmlFileManager::DB_PATH . $this->name . '/' . $this->name . XmlFileManager::DB_FILE_ENDING,"r");
+        $file = fopen($this->path
+            . '/' . $this->name . XmlFileManager::DB_INFO_FILE_ENDING,"r");
         $this->latestObjectId = (int)fread($file, 1000);
         fclose($file);
     }
     
     private function writeLatestObjectId()
     {
-        $file = fopen(XmlFileManager::DB_PATH . $this->name . '/' . $this->name . XmlFileManager::DB_FILE_ENDING,"w");
+        $file = fopen($this->path
+            . '/' . $this->name . XmlFileManager::DB_INFO_FILE_ENDING,"w");
         fwrite($file, $this->latestObjectId);
         fclose($file);
     }
@@ -233,7 +238,7 @@ class XmlDatabase implements Database
             }
         }
     }
-    
+
     public function getConfig()
     {
         return $this->config;

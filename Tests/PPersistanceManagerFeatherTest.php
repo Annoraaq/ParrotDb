@@ -38,29 +38,34 @@ class PPersistanceManagerFeatherTest  extends \PHPUnit_Framework_TestCase
      */
     protected function setUp()
     {
-       
 
-        $this->session = PSessionFactory::createSession("Feather", PSession::DB_FEATHER);
+        $path = dirname(__FILE__) . "/pdb/Feather/";
+
+        $this->session = PSessionFactory::createSession(dirname(__FILE__) . "/pdb/Feather",
+            PSession::DB_FEATHER);
         $this->pm = $this->session->createPersistenceManager();
+
         
-        if (file_exists("pdb/Feather/Feather.pdb")) {
-            unlink("pdb/Feather/Feather.pdb");
+        if (file_exists(dirname(__FILE__) . "/pdb/Feather/Feather.pfo")) {
+            unlink(dirname(__FILE__) . "/pdb/Feather/Feather.pfo");
         }
-       if (file_exists("pdb/Feather/Author.pdb")) {
-            unlink("pdb/Feather/Author.pdb");
-        }
-        
-        if (file_exists("pdb/Feather/Publication.pdb")) {
-            unlink("pdb/Feather/Publication.pdb");
+       if (file_exists($path . "Author.pdb")) {
+            unlink($path . "Author.pdb");
         }
         
-        if (file_exists("pdb/Feather/PrivateConstructor.pdb")) {
-            unlink("pdb/Feather/PrivateConstructor.pdb");
+        if (file_exists($path . "Publication.pdb")) {
+            unlink($path . "Publication.pdb");
         }
         
-         if (file_exists("pdb/Feather/StaticStub.pdb")) {
-            unlink("pdb/Feather/StaticStub.pdb");
+        if (file_exists($path . "PrivateConstructor.pdb")) {
+            unlink($path . "PrivateConstructor.pdb");
         }
+
+         if (file_exists($path . "StaticStub.pdb")) {
+            unlink($path . "StaticStub.pdb");
+        }
+
+
         
     }
 
@@ -70,25 +75,27 @@ class PPersistanceManagerFeatherTest  extends \PHPUnit_Framework_TestCase
      */
     protected function tearDown()
     {
-       PSessionFactory::closeSession("Feather");
-       if (file_exists("pdb/Feather/Feather.pdb")) {
-            unlink("pdb/Feather/Feather.pdb");
+        $path = dirname(__FILE__) . "/pdb/Feather/";
+       PSessionFactory::closeSession(dirname(__FILE__) . "/pdb/Feather");
+
+        if (file_exists(dirname(__FILE__) . "/pdb/Feather/Feather.pfo")) {
+            unlink(dirname(__FILE__) . "/pdb/Feather/Feather.pfo");
         }
-        
-        if (file_exists("pdb/Feather/Author.pdb")) {
-            unlink("pdb/Feather/Author.pdb");
-        } 
-       
-        if (file_exists("pdb/Feather/Publication.pdb")) {
-            unlink("pdb/Feather/Publication.pdb");
+
+        if (file_exists($path . "Author.pdb")) {
+            unlink($path . "Author.pdb");
         }
-        
-        if (file_exists("pdb/Feather/PrivateConstructor.pdb")) {
-            unlink("pdb/Feather/PrivateConstructor.pdb");
+
+        if (file_exists($path . "Publication.pdb")) {
+            unlink($path . "Publication.pdb");
         }
-        
-        if (file_exists("pdb/Feather/StaticStub.pdb")) {
-            unlink("pdb/Feather/StaticStub.pdb");
+
+        if (file_exists($path . "PrivateConstructor.pdb")) {
+            unlink($path . "PrivateConstructor.pdb");
+        }
+
+        if (file_exists($path . "StaticStub.pdb")) {
+            unlink($path . "StaticStub.pdb");
         }
     }
     
@@ -187,7 +194,8 @@ class PPersistanceManagerFeatherTest  extends \PHPUnit_Framework_TestCase
     {
         $static = new \StaticStub();
         $human = $this->createTestAuthor();
-        $this->pm->setConfigValue("ignoreStatic", true);
+        //$this->pm->setConfigValue("ignoreStatic", true);
+        $this->pm->getConfig()->setIgnoreStatic(true);
 
         \StaticStub::$human = $human;
 
@@ -285,38 +293,16 @@ class PPersistanceManagerFeatherTest  extends \PHPUnit_Framework_TestCase
         $this->pm->persist($author);
         $this->pm->commit();
 
-        echo "startFetch\n";
         $authorReFetched = $this->pm->fetch(new PObjectId(0));
-        echo "endFetch\n";
                 
-//        echo "AUTHOR2\n";
-//       var_dump($author2);
-//        
-//        echo "AUTHOR\n";
-//       var_dump($author);
-//        echo "AUTHOR FETCHED\n";
-//       var_dump($authorReFetched);
 
-        
-//        
         $this->assertTrue($author2->equals($authorReFetched));
         $this->assertFalse($author3->equals($authorReFetched));
         $this->assertFalse($author->equals($author4));
         
     }
 
-    /**
-     * @covers ParrotDb\Core\PPersistanceManager::fetch
-     * @todo   Implement testFetch().
-     */
-    public function testFetch()
-    {
-        // Remove the following lines when you implement this test.
-        $this->markTestIncomplete(
-            'This test has not been implemented yet.'
-        );
-    }
-    
+
     public function testClassConstraint() {
         $author = $this->createTestAuthor();
         $author2 = $this->createTestAuthor();
@@ -1103,7 +1089,8 @@ class PPersistanceManagerFeatherTest  extends \PHPUnit_Framework_TestCase
     
     
     public function testActivationDepth() {
-        $this->pm->setConfigValue('activationDepth', 0);
+        //$this->pm->setConfigValue('activationDepth', 0);
+        $this->pm->getConfig()->setActivationDepth(0);
         $author = $this->createTestAuthor();
         $this->pm->persist($author);
         

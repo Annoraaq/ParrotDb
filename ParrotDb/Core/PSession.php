@@ -18,22 +18,20 @@ class PSession
     const DB_XML = 2;
     const DB_FEATHER = 3;
 
-    private $filePath;
     private $database;
 
-    public function __construct($filePath, $dbEngine)
+    public function __construct($filePath, $dbEngine, $configPath = null)
     {
-        $this->filePath = $filePath;
 
         switch ($dbEngine) {
             case (self::DB_MEMORY):
                 $this->database = new PMemoryDatabase();
                 break;
             case (self::DB_XML):
-                $this->database = new XmlDatabase($this->filePath);
+                $this->database = new XmlDatabase($filePath, $configPath);
                 break;
             case (self::DB_FEATHER):
-                $this->database = new FeatherDatabase($this->filePath);
+                $this->database = new FeatherDatabase($filePath, $configPath);
                 break;
             default:
                 throw new PException(
@@ -65,7 +63,6 @@ class PSession
     public function close()
     {
         $this->database->close();
-        //PSessionFactory::closeSession($this->filePath);
     }
 
     /**

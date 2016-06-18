@@ -14,9 +14,8 @@ use ParrotDb\Utils\PXmlUtils;
  */
 class XmlFileManager {
     
-    const DB_PATH = "pdb/";
-    
     const DB_FILE_ENDING = ".pdb";
+    const DB_INFO_FILE_ENDING = ".pfo";
     
     protected $file;
     
@@ -36,13 +35,14 @@ class XmlFileManager {
     private $dbName;
     
     /**
-     * @param string $dbName
+     * @param string $dbPath
      */
-    public function __construct($dbName) {
+    public function __construct($dbPath) {
         $this->resetDomDocument();
         $this->fileExists = false;
-        $this->dbPath = static::DB_PATH . $dbName . '/';
-        $this->dbName = $dbName;
+        $this->dbPath = $dbPath . '/';
+        $this->dbName = $dbPath;
+
     }
     
     private function resetDomDocument() {
@@ -50,12 +50,7 @@ class XmlFileManager {
         $this->objectSerializer = new XmlObjectSerializer($domDocument);
         $this->classSerializer = new XmlClassSerializer($domDocument);
     }
-    
-    private function filePath() {
-        return $this->toFilePath(
-                $this->pObject->getClass()->getName()
-            );
-    }
+
     
     private function toFilePath($className) {
         $className = str_replace('\\', '-', $className);
@@ -176,12 +171,7 @@ class XmlFileManager {
 
     }
     
-    /**
-     * 
-     * @param PObjectId $oid
-     * @return PObject
-     * @throws PException
-     */
+
     public function fetchAll() {
         
         $this->domDocument = new \DOMDocument();

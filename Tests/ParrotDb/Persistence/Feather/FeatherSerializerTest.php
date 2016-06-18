@@ -30,7 +30,7 @@ class FeatherSerializerTest extends \PHPUnit_Framework_TestCase {
      * This method is called before a test is executed.
      */
     protected function setUp() {
-        $this->session = PSessionFactory::createSession("Feather", \ParrotDb\Core\PSession::DB_FEATHER);
+        $this->session = PSessionFactory::createSession(dirname(__FILE__) . "/pdb/Feather", \ParrotDb\Core\PSession::DB_FEATHER);
         $this->pm = $this->session->createPersistenceManager();
         
 //        if (file_exists("pdb/Feather/Feather.pdb")) {
@@ -51,7 +51,7 @@ class FeatherSerializerTest extends \PHPUnit_Framework_TestCase {
      * This method is called after a test is executed.
      */
     protected function tearDown() {
-        PSessionFactory::closeSession("Feather");
+        PSessionFactory::closeSession(dirname(__FILE__) . "/pdb/Feather");
     }
     
     private function createTestAuthor() {
