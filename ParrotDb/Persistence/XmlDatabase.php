@@ -32,6 +32,7 @@ class XmlDatabase implements Database
     private $name;
     private $latestObjectId;
 
+
     /**
      * @param string $path
      */
@@ -124,7 +125,7 @@ class XmlDatabase implements Database
     /**
      * @inheritDoc
      */
-    public function delete(PConstraint $constraint)
+    public function delete(PConstraint $constraint, $forceDelete = false)
     {
         $this->constraintProcessor->setPersistedObjects($this->fileManager->fetchAll());
         $resultSet = $this->constraintProcessor->process($constraint);
@@ -244,5 +245,20 @@ class XmlDatabase implements Database
         return $this->config;
     }
 
+    public function getRefByManager()
+    {
+        return new MemoryRefByManager();
+    }
+
+    public function getPath() {
+        return $this->path;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function getFileManager() {
+        return $this->fileManager;
+    }
 
 }

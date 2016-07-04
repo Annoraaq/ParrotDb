@@ -49,6 +49,15 @@ class PPersistanceManagerFeatherTest  extends \PHPUnit_Framework_TestCase
         if (file_exists(dirname(__FILE__) . "/pdb/Feather/Feather.pfo")) {
             unlink(dirname(__FILE__) . "/pdb/Feather/Feather.pfo");
         }
+
+        if (file_exists(dirname(__FILE__) . "/pdb/Feather/refby.ref")) {
+            unlink(dirname(__FILE__) . "/pdb/Feather/refby.ref");
+        }
+
+        if (file_exists(dirname(__FILE__) . "/pdb/Feather/reflist.ref")) {
+            unlink(dirname(__FILE__) . "/pdb/Feather/reflist.ref");
+        }
+
        if (file_exists($path . "Author.pdb")) {
             unlink($path . "Author.pdb");
         }
@@ -80,6 +89,14 @@ class PPersistanceManagerFeatherTest  extends \PHPUnit_Framework_TestCase
 
         if (file_exists(dirname(__FILE__) . "/pdb/Feather/Feather.pfo")) {
             unlink(dirname(__FILE__) . "/pdb/Feather/Feather.pfo");
+        }
+
+        if (file_exists(dirname(__FILE__) . "/pdb/Feather/refby.ref")) {
+            unlink(dirname(__FILE__) . "/pdb/Feather/refby.ref");
+        }
+
+        if (file_exists(dirname(__FILE__) . "/pdb/Feather/reflist.ref")) {
+            unlink(dirname(__FILE__) . "/pdb/Feather/reflist.ref");
         }
 
         if (file_exists($path . "Author.pdb")) {
@@ -167,7 +184,10 @@ class PPersistanceManagerFeatherTest  extends \PHPUnit_Framework_TestCase
         $this->assertTrue($author2->equals($authorReFetched));
         
     }
-    
+
+    /**
+     * @medium
+     */
     public function testPersistStatic()
     {
         $static = new \StaticStub();

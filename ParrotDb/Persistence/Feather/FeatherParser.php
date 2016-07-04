@@ -2,6 +2,7 @@
 
 namespace ParrotDb\Persistence\Feather;
 
+use ParrotDb\Core\PConfig;
 use ParrotDb\Utils\VirtualString;
 use ParrotDb\Utils\VirtualWriteString;
 use ParrotDb\ObjectModel\PObjectId;
@@ -20,27 +21,25 @@ class FeatherParser
 
     private $virtualString;
     private $fileName;
-    private $chunkSize;
     private $bufferManager;
     private $objectStartPos;
-    private $memoryLimit;
     private $charactersRead;
     private $objectBuffer;
     private $resultAccumulator;
     private $constraintProcessor;
+    private $config;
 
     /**
      * @param string $fileName
-     * @param int chunkSize
+     * @param PConfig $config
      */
-    public function __construct($fileName, $chunkSize = 10024)
+    public function __construct($fileName, PConfig $config)
     {
         $this->fileName = $fileName;
-        $this->chunkSize = $chunkSize;
         $this->objectStartPos = 0;
-        $this->memoryLimit = 10000000;
         $this->charactersRead = 0;
         $this->constraintProcessor = new PXmlConstraintProcessor();
+        $this->config = $config;
     }
 
     /**
@@ -52,7 +51,8 @@ class FeatherParser
     }
 
     /**
-     * @param int $position
+     * @param $position
+     * @return bool
      */
     private function notFound($position)
     {
@@ -88,7 +88,7 @@ class FeatherParser
     private function openVirtualString()
     {
         $this->virtualString = new VirtualString(
-            $this->fileName, $this->chunkSize
+            $this->fileName, $this->config->getChunkSize()
         );
         $this->virtualString->open();
 
@@ -226,7 +226,7 @@ class FeatherParser
 
     private function processBuffer(PConstraint $constraint)
     {
-        if ($this->charactersRead > $this->memoryLimit) {
+        if ($this->charactersRead > $this->config->getMemoryLimit()) {
             $this->constraintProcessor->setPersistedObjects($this->objectBuffer);
             $this->accumulate($this->constraintProcessor->process($constraint));
 
@@ -238,7 +238,7 @@ class FeatherParser
     private function isSpaceInBuffer($objLen)
     {
         $neededSpace = $this->bufferManager->getBufferOffset($this->fileName) + $objLen;
-        return ($neededSpace <= $this->memoryLimit);
+        return ($neededSpace <= $this->config->getMemoryLimit());
     }
 
     private function isValidObject($oid)
@@ -340,12 +340,14 @@ class FeatherParser
     public function setInvalid(PObjectId $objectId)
     {
         $this->virtualString = new VirtualWriteString(
-            $this->fileName, $this->chunkSize
+            $this->fileName, $this->config->getChunkSize()
         );
 
         $this->virtualString->open();
 
         $this->objectStartPos = $this->getEndOfClassSection();
+
+        $success = false;
 
         while (true) {
             if ($this->isEndOfFile($this->objectStartPos)) {
@@ -356,6 +358,7 @@ class FeatherParser
             if (!$this->isInvalid($nextObjectId)
                 && $nextObjectId == $objectId->getId()) {
                 $this->virtualString->replace($this->objectStartPos + 2, "j");
+                $success = true;
                 break;
             } else {
                 $this->objectStartPos = $this->getNextObjectPosition(
@@ -364,7 +367,20 @@ class FeatherParser
             }
         }
 
+        if ($success) {
+            $counter = $this->virtualString->substr(1, 11);
+            $counter++;
+
+            if ($counter > $this->config->getCleanThreshold()) {
+                $this->clean();
+            } else {
+                $this->virtualString->replaceStr(1, str_pad($counter, 10, '0', STR_PAD_LEFT));
+            }
+        }
+
         $this->virtualString->close();
+
+
 
         return false;
     }
@@ -376,15 +392,16 @@ class FeatherParser
     public function setInvalidArray($oids)
     {
         $this->virtualString = new VirtualWriteString(
-            $this->fileName, $this->chunkSize
+            $this->fileName, $this->config->getChunkSize()
         );
 
         $this->virtualString->open();
 
         $this->objectStartPos = $this->getEndOfClassSection();
 
+        $invalidCount = 0;
         $amount = count($oids);
-        while (true && $amount > 0) {
+        while ($amount > 0) {
             if ($this->isEndOfFile($this->objectStartPos)) {
                 break;
             }
@@ -392,9 +409,10 @@ class FeatherParser
             $nextObjectId = $this->getNextObjectId();
             if (!$this->isInvalid($nextObjectId)
                 && isset($oids[$nextObjectId])) {
-                $this->virtualString->replace($this->objectStartPos + 2, "j");
+                $this->virtualString->replace($this->objectStartPos + 2, 0);
                 unset($oids[$nextObjectId]);
                 $amount--;
+                $invalidCount++;
             } else {
                 $this->objectStartPos = $this->getNextObjectPosition(
                     mb_strlen($nextObjectId)
@@ -402,9 +420,119 @@ class FeatherParser
             }
         }
 
+        if ($invalidCount > 0) {
+            $counter = $this->virtualString->substr(1, 11);
+            $counter += $invalidCount;
+
+
+            if ($counter > $this->config->getCleanThreshold()) {
+                $this->clean();
+                return false;
+            } else {
+                $this->virtualString->replaceStr(1, str_pad($counter, 10, '0', STR_PAD_LEFT));
+            }
+        }
+
         $this->virtualString->close();
 
         return false;
+    }
+
+    /**
+     * Remove all invalid entries
+     */
+    public function clean() {
+        $this->virtualString = new VirtualWriteString(
+            $this->fileName, $this->config->getChunkSize()
+        );
+
+        $newVirtStr = new VirtualWriteString(
+            $this->fileName . ".temp", $this->config->getChunkSize()
+        );
+
+        $newVirtStr->open();
+
+        $this->virtualString->open();
+
+        $this->objectStartPos = $this->getEndOfClassSection();
+
+        $invalidInitStr = "(0000000000)";
+        $newVirtStr->append($invalidInitStr);
+        $newVirtStr->append($this->virtualString->substr(mb_strlen($invalidInitStr), $this->objectStartPos));
+        
+        while (true) {
+            if ($this->isEndOfFile($this->objectStartPos)) {
+                break;
+            }
+
+            $nextObjectId = $this->getNextObjectId();
+            if (!$this->isInvalid($nextObjectId)) {
+                $object = "[" . $this->getNextObject() . "]";
+                $newVirtStr->append($object);
+            }
+            $this->objectStartPos = $this->getNextObjectPosition(
+                mb_strlen($nextObjectId)
+            );
+
+        }
+
+        $newVirtStr->close();
+
+        $this->virtualString->close();
+
+        unlink($this->fileName);
+        rename($this->fileName . ".temp", $this->fileName);
+
+        return false;
+    }
+
+
+    /**
+     * Counts the amount of invalid objects. Only use this for debugging. Use getInvalid() otherwise
+     *
+     * @return int Amount of invalid objects
+     */
+    public function countInvalid() {
+        $this->openVirtualString();
+
+        $counter = 0;
+
+        while (true) {
+            if ($this->isEndOfFile($this->objectStartPos)) {
+                break;
+            }
+            $nextObjectId = $this->getNextObjectId();
+            if ($this->isInvalid($nextObjectId)) {
+                $counter++;
+            }
+            
+            $this->objectStartPos = $this->getNextObjectPosition(
+                mb_strlen($nextObjectId)
+            );
+
+        }
+
+        $this->virtualString->close();
+
+        return $counter;
+    }
+
+    /**
+     *  Gets the amount of invalid objects from database header
+     *  @return int Amount of invalid objects
+     */
+    public function getInvalid() {
+        $this->virtualString = new VirtualWriteString(
+            $this->fileName, $this->config->getChunkSize()
+        );
+
+        $this->virtualString->open();
+
+        $cnt = (int) $this->virtualString->substr(1, 11);
+
+        $this->virtualString->close();
+
+        return $cnt;
     }
 
 }

@@ -39,7 +39,7 @@ class FeatherParserTest extends \PHPUnit_Framework_TestCase
             unlink($path . "Author.pdb");
         }
         
-        $this->parser = new FeatherParser($path . "Author.pdb");
+        $this->parser = new FeatherParser($path . "Author.pdb", $this->session->getDatabase()->getConfig());
         
     }
     

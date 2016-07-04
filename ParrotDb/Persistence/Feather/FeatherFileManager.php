@@ -7,6 +7,8 @@ use ParrotDb\ObjectModel\PObjectId;
 use ParrotDb\Core\PException;
 use ParrotDb\Core\PConfig;
 use ParrotDb\Query\Constraint\PConstraint;
+use ParrotDb\Utils\PUtils;
+use ParrotDb\Query\PResultSet;
 
 /**
  * Description of FileManager
@@ -177,10 +179,11 @@ class FeatherFileManager
 
     private function insertFirstObject()
     {
+        $invalidCounter = "0000000000";
         $this->classSerializer->setPClass($this->pObject->getClass());
         $serClass = $this->classSerializer->serialize();
         $serClassLen = mb_strlen($serClass);
-        $this->featherStream = $serClass;
+        $this->featherStream = "(" . $invalidCounter . ")" . $serClass;
         $this->charsStored = $serClassLen;
 
         $this->objectSerializer->setPObject($this->pObject);
@@ -241,7 +244,7 @@ class FeatherFileManager
             }
         }
 
-        $resultSet = new \ParrotDb\Query\PResultSet();
+        $resultSet = new PResultSet();
         foreach ($objList as $key => $val) {
             $resultSet->add($val);
         }
@@ -250,14 +253,14 @@ class FeatherFileManager
 
     private function fetchFromFileConstraint($className, PConstraint $constraint)
     {
-        $featherParser = new FeatherParser($this->toFilePath($className));
+        $featherParser = new FeatherParser($this->toFilePath($className), $this->config);
         $featherParser->setBufferManager($this->bufferManager);
         return $featherParser->fetchConstraint($constraint);
     }
 
     private function fetchFrom($className, PObjectId $oid)
     {
-        $featherParser = new FeatherParser($this->toFilePath($className));
+        $featherParser = new FeatherParser($this->toFilePath($className), $this->config);
         return $featherParser->fetch($oid);
     }
 
@@ -270,7 +273,8 @@ class FeatherFileManager
         //$this->bufferManager->resetBuffer($this->toFilePath($className));
         $this->bufferManager->removeFromBuffer($this->toFilePath($className), $oid->getId());
 
-        $featherParser = new FeatherParser($this->toFilePath($className));
+        $featherParser = new FeatherParser($this->toFilePath($className), $this->config);
+        
         $featherParser->setInvalid($oid);
     }
 
@@ -291,7 +295,7 @@ class FeatherFileManager
         }
         
         if ($className != false) {
-            $featherParser = new FeatherParser($this->toFilePath($className));
+            $featherParser = new FeatherParser($this->toFilePath($className), $this->config);
             $featherParser->setInvalidArray($oids);
         }
         
@@ -313,7 +317,7 @@ class FeatherFileManager
 
         $filtered = [];
         foreach ($scanDir as $entry) {
-            if (\ParrotDb\Utils\PUtils::endsWith($entry,
+            if (PUtils::endsWith($entry,
               $this->dbName . static::DB_FILE_ENDING)) {
                 continue;
             }
@@ -357,8 +361,41 @@ class FeatherFileManager
 
     private function isObjectStoredIn($oid, $className)
     {
-        $featherParser = new FeatherParser($this->toFilePath($className));
+        $featherParser = new FeatherParser($this->toFilePath($className), $this->config);
         return $featherParser->isObjectStoredIn($oid);
+    }
+
+    /**
+     * Cleans up database file, removing invalid elements.
+     * This operation takes O(n) time, where n is the length of the database file.
+     *
+     * @param string className
+     */
+    public function clean($className) {
+        $featherParser = new FeatherParser($this->toFilePath($className), $this->config);
+        $featherParser->clean();
+    }
+
+    /**
+     * Count invalid entries in database file. This is more expensive than getInvalid and should only be used for
+     * debugging
+     *
+     * @param $className
+     * @return int
+     */
+    public function countInvalid($className) {
+        $featherParser = new FeatherParser($this->toFilePath($className), $this->config);
+        return $featherParser->countInvalid();
+    }
+
+    /**
+     * Get invalid entries from header of database file
+     *
+     * @param $className
+     */
+    public function getInvalid($className) {
+        $featherParser = new FeatherParser($this->toFilePath($className), $this->config);
+        return $featherParser->getInvalid();
     }
 
 }

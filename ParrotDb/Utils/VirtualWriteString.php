@@ -23,41 +23,49 @@ class VirtualWriteString extends VirtualString
     {
         $this->file = fopen($this->fileName, 'c+');
 
-    }
-    
-    /**
-     * @param int $start
-     * @param string $leftBorder
-     * @param string $rightBorder
-     * 
-     * @return string The substring between the first occurrences
-     * of $leftBorder and $rightBorder from $offset
-     * 
-     * @throws PException
-     */
-    public function replaceInterval($start, $leftBorder, $rightBorder)
-    {
-        $leftPos = $this->findFirst($leftBorder, $start);
-        $rightPos = $this->findFirst($rightBorder, $leftPos);
-
-        if ($leftPos == (-1) || $rightPos == (-1)) {
-            throw new PException("Borders not found.");
+        if (!$this->file) {
+            throw new PException("Could not open file: " . $this->fileName);
         }
 
-        return $this->substr($leftPos + 1, $rightPos);
     }
+    
+
     
     /**
      * @param int $start
-     * @param int $stop
      * 
      * @return string Substring in the specified range
      */
-    public function replace($start, $stop)
+    public function replace($start)
     {
         fseek($this->file, $start, SEEK_SET);
 
         fwrite($this->file, "i");
+
+    }
+
+    /**
+     * @param int $start
+     * @param string $string
+     *
+     * @return string Substring in the specified range
+     */
+    public function replaceStr($start, $string)
+    {
+        fseek($this->file, $start, SEEK_SET);
+
+        fwrite($this->file, $string);
+
+    }
+
+    /**
+     * @param string $string
+     */
+    public function append($string)
+    {
+        fseek($this->file, 0, SEEK_END);
+
+        fwrite($this->file, $string);
 
     }
 

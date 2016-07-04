@@ -11,6 +11,7 @@ namespace ParrotDb\Core;
 class PConfig
 {
 
+
     /**
      * @var int memory limit in bytes
      */
@@ -25,6 +26,17 @@ class PConfig
      * @var bool ignore static fields
      */
     private $ignoreStatic;
+
+    /**
+     * @var int size of chunks loaded from database files at a time
+     */
+    private $chunkSize;
+
+    /**
+     * @var int threshold of invalid entries. If there are more invalid entries per database file,
+     * the file will be cleaned
+     */
+    private $cleanThreshold;
 
     private $path;
 
@@ -46,6 +58,12 @@ class PConfig
         
         // persist static values by default
         $this->ignoreStatic = false;
+
+        // set chunk size to 1 kb
+        $this->chunkSize = 1024;
+
+        // clean up after 1000 invalid objects per file
+        $this->cleanThreshold = 1000;
 
         $this->loadConfigFile();
 
@@ -118,6 +136,55 @@ class PConfig
     public function setIgnoreStatic($ignoreStatic)
     {
         $this->ignoreStatic = $ignoreStatic;
+    }
+
+
+    /**
+     * @return null
+     */
+    public function getPath()
+    {
+        return $this->path;
+    }
+
+    /**
+     * @param null $path
+     */
+    public function setPath($path)
+    {
+        $this->path = $path;
+    }
+
+    /**
+     * @return int
+     */
+    public function getCleanThreshold()
+    {
+        return $this->cleanThreshold;
+    }
+
+    /**
+     * @param int $cleanThreshold
+     */
+    public function setCleanThreshold($cleanThreshold)
+    {
+        $this->cleanThreshold = $cleanThreshold;
+    }
+
+    /**
+     * @return int
+     */
+    public function getChunkSize()
+    {
+        return $this->chunkSize;
+    }
+
+    /**
+     * @param int $chunkSize
+     */
+    public function setChunkSize($chunkSize)
+    {
+        $this->chunkSize = $chunkSize;
     }
 
 

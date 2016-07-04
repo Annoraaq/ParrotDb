@@ -31,6 +31,7 @@ class FeatherDatabase implements Database
     private $name;
     private $latestObjectId;
     private $config;
+    private $refByManager;
 
 
     /**
@@ -43,6 +44,7 @@ class FeatherDatabase implements Database
         $this->constraintProcessor = new PXmlConstraintProcessor();
         $this->fileManager = new FeatherFileManager($path, $this->config);
         $this->path = $path;
+        $this->refByManager = new RefByManager($this);
 
         $this->name = substr(strrchr($path, '/'),1);
 
@@ -143,12 +145,35 @@ class FeatherDatabase implements Database
     }
 
     /**
-     * @inheritDoc
+     * @inheritdoc
      */
-    public function delete(PConstraint $constraint)
+    public function delete(PConstraint $constraint, $forceDelete = false)
     {
         $resultSet = $this->fileManager->fetchConstraint($constraint);
+
+        if ($forceDelete === false) {
+            $oids = [];
+            foreach ($resultSet as $pObj) {
+                $oids[$pObj->getObjectId()->getId()] = $pObj->getObjectId()->getId();
+            }
+
+            foreach ($resultSet as $pObj) {
+                $refBy = $this->refByManager->getRefBy($pObj->getObjectId());
+                foreach ($refBy as $ref) {
+                    if (!isset($oids[$ref])) {
+                        throw new ReferentialIntegrityException(
+                            "Object '" . $pObj->getObjectId()
+                            . "'' can not be deleted. It is still referenced by object '" . $ref . "'."
+                        );
+                    }
+                }
+            }
+        }
+
         $this->fileManager->deleteArray($resultSet);
+        foreach ($resultSet as $pObj) {
+            $this->refByManager->removeRefByRelations($pObj->getObjectId());
+        }
         $this->writeLatestObjectId();
         return $resultSet;
     }
@@ -162,6 +187,7 @@ class FeatherDatabase implements Database
     public function deleteSingle($className, PObjectId $objectId)
     {
         $this->fileManager->delete($className, $objectId);
+        $this->refByManager->removeRefByRelations($objectId);
     }
 
     /**
@@ -246,6 +272,23 @@ class FeatherDatabase implements Database
         //$this->config = new PConfig();
         return $this->config;
         //return new PConfig();
+    }
+
+
+    public function getRefByManager()
+    {
+        return $this->refByManager;
+    }
+
+    public function getPath() {
+        return $this->path;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function getFileManager() {
+        return $this->fileManager;
     }
 
 

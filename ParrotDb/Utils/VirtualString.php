@@ -198,6 +198,28 @@ class VirtualString
     }
 
     /**
+     * @param int $start
+     * @param string $leftBorder
+     * @param string $rightBorder
+     *
+     * @return boolean
+     *
+     * @throws PException
+     */
+    public function hasNextInterval($start, $leftBorder, $rightBorder) {
+
+        $leftPos = $this->findFirstUnescaped($leftBorder, $start);
+        $rightPos = $this->findFirstUnescaped($rightBorder, $leftPos+1);
+
+        if ($leftPos == (-1) || $rightPos == (-1)) {
+            return false;
+        }
+
+        return true;
+
+    }
+
+    /**
      * Close file
      */
     public function close()

@@ -74,9 +74,10 @@ class ObjectMapper {
      * 
      * @param mixed $object
      * @param PClass $pClass
+     * @param PObjectId $oid
      * @return PObject
      */
-    public function createObject($object, $pClass,$oid) {
+    public function createObject($object, PClass $pClass, PObjectId $oid) {
         $pObject = new PObject($oid);
         $pObject->setClass($pClass);
         $this->addAttributes(
@@ -111,7 +112,7 @@ class ObjectMapper {
             if (!$this->session->getDatabase()->getConfig()->isIgnoreStatic() ||
                 !$property->isStatic()) {
                     $pObject->addAttribute(
-                     $property->getName(), $this->createObjectValue($object, $property)
+                     $property->getName(), $this->createObjectValue($object, $property, $pObject)
                     );
             
                 }
@@ -135,7 +136,7 @@ class ObjectMapper {
      * @param ReflectionProperty $property
      * @return mixed
      */
-    private function createObjectValue($object, $property) {
+    private function createObjectValue($object, $property, PObject $parentObject) {
 
         $value = $property->getValue($object);
 
@@ -143,8 +144,12 @@ class ObjectMapper {
             $value = $this->oIdToPHPId[spl_object_hash($object)]->getObjectId();
         } else if (PUtils::isObject($value)) {
             $value = $this->makePersistanceReady($value);
+            $this->session->getDatabase()->getRefByManager()->addRefByRelation(
+                $parentObject->getObjectId(),
+                $value
+            );
         } else if (PUtils::isArray($value)) {
-            $value = $this->persistArray($value);
+            $value = $this->persistArray($value, $parentObject->getObjectId());
         } else if (PUtils::isString($value)) {
             $value = PUtils::escape($value);
         }
@@ -154,16 +159,17 @@ class ObjectMapper {
 
     /**
      * Persists an array recursively and returns a persisted array.
-     * 
+     *
      * @param array $value
+     * @param PObjectId $parentObjectId
      * @return array
      */
-    private function persistArray($value) {
+    private function persistArray($value, PObjectId $parentObjectId) {
         $newArr = array();
 
         foreach ($value as $key => $val) {
             $newArr = $this->persistValue($key, $val, PUtils::isAssoc($value),
-             $newArr);
+             $newArr, $parentObjectId);
         }
 
         return $newArr;
@@ -179,18 +185,24 @@ class ObjectMapper {
      * @param array $arr
      * @return array
      */
-    private function persistValue($key, $val, $assoc, $arr) {
+    private function persistValue($key, $val, $assoc, $arr, PObjectId $parentObjectId) {
         if (PUtils::isObject($val)) {
+            $pObject = $this->makePersistanceReady($val);
             if ($assoc) {
-                $arr[$key] = $this->makePersistanceReady($val);
+                $arr[$key] = $pObject;
             } else {
-                $arr[] = $this->makePersistanceReady($val);
+                $arr[] = $pObject;
             }
+
+            $this->session->getDatabase()->getRefByManager()->addRefByRelation(
+                $parentObjectId,
+                $pObject
+            );
         } else if (PUtils::isArray($val)) {
             if ($assoc) {
-                $arr[$key] = $this->persistArray($val);
+                $arr[$key] = $this->persistArray($val, $parentObjectId);
             } else {
-                $arr[] = $this->persistArray($val);
+                $arr[] = $this->persistArray($val, $parentObjectId);
             }
         }
 

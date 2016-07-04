@@ -83,10 +83,12 @@ class PPersistanceManager
     /**
      * Makes all "to persist" PHP objects persistance ready
      * and persists them.
-     * 
-     * @param Array $config
+     *
+     * @param bool $forceDelete Force deletion, even if referential integrity is violated
+     * @return int
+     *
      */
-    public function commit()
+    public function commit($forceDelete = false)
     {
         
         $counter = 0;
@@ -103,8 +105,9 @@ class PPersistanceManager
             $arr[0] = $temp->getConstraint();
             $constr = new POrConstraint($arr);
             $temp->setConstraint($constr);
-            
-            $resultSet = $this->session->getDatabase()->delete($temp);
+
+
+            $resultSet = $this->session->getDatabase()->delete($temp, $forceDelete);
 
             $counter += $resultSet->size();
 
@@ -180,7 +183,7 @@ class PPersistanceManager
      * Queries and deletes from the database and returns amount of
      * deleted objects.
      * 
-     * @param PConstraint $constraint
+     * @param PClassConstraint $constraint
      * @return int
      */
     public function delete(PClassConstraint $constraint)
@@ -215,13 +218,25 @@ class PPersistanceManager
     public function getConfig() {
         return $this->session->getDatabase()->getConfig();
     }
-    
-//    public function setConfigValue($name, $value) {
-//        $cfg = $this->session->getDatabase()->getConfig();
-//
-//        if (property_exists($cfg, $name)) {
-//            $cfg->{$name} = $value;
-//        }
-//    }
+
+    /**
+     * @param PObjectId $oid
+     * @return array
+     */
+    public function getRefBy(PObjectId $oid) {
+        return $this->session->getDatabase()->getRefByManager()->getRefBy($oid);
+    }
+
+    /**
+     * @param PObjectId $oid
+     * @return array
+     */
+    public function getRefList(PObjectId $oid) {
+        return $this->session->getDatabase()->getRefByManager()->getRefList($oid);
+    }
+
+    public function clean($className) {
+        return $this->session->getDatabase()->getFileManager()->clean($className);
+    }
 
 }

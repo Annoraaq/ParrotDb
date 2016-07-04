@@ -52,15 +52,16 @@ interface Database {
      * @return PResultSet
      */
     public function query(PConstraint $constraint);
-    
+
     /**
      * Queries and deletes from the database and returns the amount
      * of deleted objects.
-     * 
+     *
      * @param PConstraint $constraint
+     * @param bool $forceDelete Force deletion even if referential integrity is violated
      * @return int
      */
-    public function delete(PConstraint $constraint);
+    public function delete(PConstraint $constraint, $forceDelete = false);
     
 
     /**
@@ -93,6 +94,27 @@ interface Database {
      * @return \ParrotDb\Core\PConfig
      */
     public function getConfig();
+
+    /**
+     * Returns the RefByManagers
+     *
+     * @return \ParrotDb\Persistence\RefByManager
+     */
+    public function getRefByManager();
+
+    /**
+     * Returns the directory of the database
+     *
+     * @return string
+     */
+    public function getPath();
+
+    /**
+     * Returns the file manager of the database
+     *
+     * @return mixed
+     */
+    public function getFileManager();
     
     
 }

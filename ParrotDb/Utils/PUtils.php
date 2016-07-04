@@ -227,4 +227,10 @@ class PUtils {
         return (strpos($haystack, $needle) !== false);
     }
 
+    public static function readStrUntil($string, $stopChar) {
+        $arr = explode($stopChar, $string, 2);
+        return $arr[0];
+    }
+    
+
 }

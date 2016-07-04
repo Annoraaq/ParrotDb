@@ -94,7 +94,7 @@ class PMemoryDatabase implements Database {
     /**
      * @inheritDoc
      */
-    public function delete(PConstraint $constraint) {
+    public function delete(PConstraint $constraint, $forceDelete = false) {
         $this->constraintProcessor->setPersistedObjects($this->persistedObjects);
         
         $resultSet = $this->constraintProcessor->process($constraint);
@@ -213,6 +213,22 @@ class PMemoryDatabase implements Database {
     public function getConfig()
     {
         return $this->config;
+    }
+
+    public function getRefByManager()
+    {
+        return new MemoryRefByManager();
+    }
+
+    public function getPath() {
+        return null;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function getFileManager() {
+        return null;
     }
 
 
