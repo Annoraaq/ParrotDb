@@ -20,7 +20,9 @@ use ParrotDb\Utils\VirtualString;
  */
 class RefByManager
 {
+    const REFBY_FILE_NAME = 'refby.ref';
 
+    const REFLIST_FILE_NAME = 'reflist.ref';
 
     private $database;
 
@@ -29,12 +31,12 @@ class RefByManager
     }
 
     private function loadRefBy($referee) {
-        $filePath = $this->database->getPath() . '/refby.ref';
+        $filePath = $this->database->getPath() . '/' . self::REFBY_FILE_NAME;
         if (!file_exists($filePath)) {
             return [];
         }
 
-        $startPos = $this->findObject($referee, 'refby.ref');
+        $startPos = $this->findObject($referee, self::REFBY_FILE_NAME);
 
         if ($startPos > -1) {
             $virtStr = new VirtualWriteString($filePath, 10024);
@@ -90,9 +92,9 @@ class RefByManager
     }
     private function saveRefBy($referee, $list) {
 
-        $startPos = $this->findObject($referee, 'refby.ref');
+        $startPos = $this->findObject($referee, self::REFBY_FILE_NAME);
 
-        $filePath = $this->database->getPath() . '/refby.ref';
+        $filePath = $this->database->getPath() . '/' . self::REFBY_FILE_NAME;
         $virtStr = new VirtualWriteString($filePath, 10024);
         $virtStr->open();
 
@@ -107,11 +109,11 @@ class RefByManager
     }
 
     private function loadRefList(PObjectId $referrer) {
-        $filePath = $this->database->getPath() . '/reflist.ref';
+        $filePath = $this->database->getPath() . '/' . self::REFLIST_FILE_NAME;
         if (!file_exists($filePath)) {
             return [];
         }
-        $startPos = $this->findObject($referrer->getId(), 'reflist.ref');
+        $startPos = $this->findObject($referrer->getId(), self::REFLIST_FILE_NAME);
 
         if ($startPos > -1) {
             $virtStr = new VirtualWriteString($filePath, 10024);
@@ -136,20 +138,16 @@ class RefByManager
     }
 
     private function saveRefList(PObjectId $referrer, $list) {
-        $startPos = $this->findObject($referrer->getId(), 'reflist.ref');
+        $startPos = $this->findObject($referrer->getId(), self::REFLIST_FILE_NAME);
 
-        $filePath = $this->database->getPath() . '/reflist.ref';
+        $filePath = $this->database->getPath() . '/' . self::REFLIST_FILE_NAME;
         $virtStr = new VirtualWriteString($filePath, 10024);
         $virtStr->open();
 
         if ($startPos > -1) {
-            //echo "safeRefList: " . ($startPos + 2 + mb_strlen($referrer->getId())) . ", " .  implode($list, ",") . PHP_EOL;
             $virtStr->replace(($startPos + 1),0);
             $virtStr->append("[" . $referrer->getId() . "," . implode($list, ",") . "]");
-            //$virtStr->replaceStr($startPos + 2 + mb_strlen($referrer->getId()), implode($list, ","));
-            //echo $virtStr->substr(0, 100) . PHP_EOL;
         } else {
-           // echo "append: " . "[" . $referrer->getId() . "," . implode($list, ",") . "]" . PHP_EOL;
             $virtStr->append("[" . $referrer->getId() . "," . implode($list, ",") . "]");
         }
 
@@ -193,10 +191,10 @@ class RefByManager
 
         }
 
-        $startPos = $this->findObject($toDelete->getId(), 'reflist.ref');
+        $startPos = $this->findObject($toDelete->getId(), self::REFLIST_FILE_NAME);
 
         if ($startPos > -1) {
-            $filePath = $this->database->getPath() . '/reflist.ref';
+            $filePath = $this->database->getPath() . '/' . self::REFLIST_FILE_NAME;
             $virtStr = new VirtualWriteString($filePath, 10024);
             $virtStr->open();
             $virtStr->replace($startPos+1,0);
@@ -204,10 +202,10 @@ class RefByManager
             $virtStr->close();
         }
 
-        $startPos = $this->findObject($toDelete->getId(), 'refby.ref');
+        $startPos = $this->findObject($toDelete->getId(), self::REFBY_FILE_NAME);
 
         if ($startPos > -1) {
-            $filePath = $this->database->getPath() . '/refby.ref';
+            $filePath = $this->database->getPath() . '/' . self::REFBY_FILE_NAME;
             $virtStr = new VirtualWriteString($filePath, 10024);
             $virtStr->open();
             $virtStr->replace($startPos+1,0);
