@@ -197,7 +197,7 @@ class RefByManager
             $filePath = $this->database->getPath() . '/' . self::REFLIST_FILE_NAME;
             $virtStr = new VirtualWriteString($filePath, 10024);
             $virtStr->open();
-            $virtStr->replace($startPos+1,0);
+            $virtStr->replace($startPos+1);
 
             $virtStr->close();
         }
@@ -208,7 +208,7 @@ class RefByManager
             $filePath = $this->database->getPath() . '/' . self::REFBY_FILE_NAME;
             $virtStr = new VirtualWriteString($filePath, 10024);
             $virtStr->open();
-            $virtStr->replace($startPos+1,0);
+            $virtStr->replace($startPos+1);
 
             $virtStr->close();
         }

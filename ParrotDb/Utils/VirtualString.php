@@ -94,11 +94,12 @@ class VirtualString
         fseek($this->file, $pos, SEEK_SET);
         $this->window = fread($this->file, $this->chunkSize);
 
-        
         if ($this->window) {
             $this->windowStart = $pos;
             $this->windowEnd = $pos + strlen($this->window)-1;
         } else {
+            $this->windowsStart = -1;
+            $this->windowEnd = -1;
             throw new PException(
             "The requested position exceeds the file length."
             );

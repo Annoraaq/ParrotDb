@@ -384,6 +384,8 @@ class FeatherParser
 
         return false;
     }
+
+
     
     /**
      * @param array $oids
@@ -401,6 +403,8 @@ class FeatherParser
 
         $invalidCount = 0;
         $amount = count($oids);
+
+
         while ($amount > 0) {
             if ($this->isEndOfFile($this->objectStartPos)) {
                 break;
@@ -409,10 +413,11 @@ class FeatherParser
             $nextObjectId = $this->getNextObjectId();
             if (!$this->isInvalid($nextObjectId)
                 && isset($oids[$nextObjectId])) {
-                $this->virtualString->replace($this->objectStartPos + 2, 0);
+                $this->virtualString->replace($this->objectStartPos + 2, 'j');
                 unset($oids[$nextObjectId]);
                 $amount--;
                 $invalidCount++;
+
             } else {
                 $this->objectStartPos = $this->getNextObjectPosition(
                     mb_strlen($nextObjectId)
@@ -420,7 +425,10 @@ class FeatherParser
             }
         }
 
+
+
         if ($invalidCount > 0) {
+
             $counter = $this->virtualString->substr(1, 11);
             $counter += $invalidCount;
 

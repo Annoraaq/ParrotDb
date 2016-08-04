@@ -121,15 +121,6 @@ class FeatherFileManager
         $this->closeFile();
     }
 
-    private function deleteOldObjects($objects, $className)
-    {
-        foreach ($objects as $pObj) {
-            $this->pObject = $pObj;
-            if ($this->existed) {
-                $this->delete($className, $pObj->getObjectId());
-            }
-        }
-    }
 
     private function insertObjects($className, $objects)
     {
@@ -160,7 +151,9 @@ class FeatherFileManager
         foreach ($arr as $fileName => $objects) {
             $this->bufferManager->resetBuffer($this->toFilePath($fileName));
             $this->checkExistence($fileName);
-            $this->deleteOldObjects($objects, $fileName);
+            if ($this->existed) {
+                $this->deleteArray($objects);
+            }
             $this->insertObjects($fileName, $objects);
         }
     }
@@ -277,6 +270,7 @@ class FeatherFileManager
         
         $featherParser->setInvalid($oid);
     }
+//
 
     /**
      * @param $objects
