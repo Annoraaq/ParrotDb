@@ -224,7 +224,7 @@ class PPersistanceManager
      * @return array
      */
     public function getRefBy(PObjectId $oid) {
-        return $this->session->getDatabase()->getRefByManager()->getRefBy($oid);
+        return $this->session->getDatabase()->getRefManager()->getRefBy($oid);
     }
 
     /**
@@ -232,7 +232,7 @@ class PPersistanceManager
      * @return array
      */
     public function getRefList(PObjectId $oid) {
-        return $this->session->getDatabase()->getRefByManager()->getRefList($oid);
+        return $this->session->getDatabase()->getRefManager()->getRefList($oid);
     }
 
     public function clean($className) {
@@ -243,7 +243,7 @@ class PPersistanceManager
      * Cleans refby file, by removing invalid entries
      */
     public function cleanRefBy() {
-        $this->session->getDatabase()->getRefByManager()->cleanRefBy();
+        $this->session->getDatabase()->getRefManager()->cleanRefBy();
     }
 
 
@@ -251,6 +251,6 @@ class PPersistanceManager
      * Cleans refby file, by removing invalid entries
      */
     public function cleanRefList() {
-        $this->session->getDatabase()->getRefByManager()->cleanRefList();
+        $this->session->getDatabase()->getRefManager()->cleanRefList();
     }
 }

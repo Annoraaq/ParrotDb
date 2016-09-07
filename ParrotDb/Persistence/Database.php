@@ -96,11 +96,11 @@ interface Database {
     public function getConfig();
 
     /**
-     * Returns the RefByManagers
+     * Returns the RefManagers
      *
-     * @return \ParrotDb\Persistence\RefByManager
+     * @return \ParrotDb\Persistence\RefManager
      */
-    public function getRefByManager();
+    public function getRefManager();
 
     /**
      * Returns the directory of the database

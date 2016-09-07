@@ -6,19 +6,19 @@
  * Time: 23:23
  */
 
-namespace ParrotDb\Persistence;
+namespace ParrotDb\Persistence\RefInt;
 
 use ParrotDb\ObjectModel\PObjectId;
 use ParrotDb\Utils\VirtualWriteString;
 use ParrotDb\Utils\VirtualString;
 
 /**
- * Class MemoryRefByManager
+ * Class MemoryRefManager
  * @package Persistence
  *
  * Manages the map from an object id to all referring object ids
  */
-class MemoryRefByManager
+class MemoryRefManager
 {
 
 

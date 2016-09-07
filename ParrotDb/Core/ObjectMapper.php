@@ -143,7 +143,7 @@ class ObjectMapper {
 
             $value = $this->makePersistanceReady($value);
 
-            $this->session->getDatabase()->getRefByManager()->addRefByRelation(
+            $this->session->getDatabase()->getRefManager()->addRefByRelation(
                 $parentObject->getObjectId(),
                 $value
             );
@@ -194,7 +194,7 @@ class ObjectMapper {
                 $arr[] = $pObject;
             }
 
-            $this->session->getDatabase()->getRefByManager()->addRefByRelation(
+            $this->session->getDatabase()->getRefManager()->addRefByRelation(
                 $parentObjectId,
                 $pObject
             );

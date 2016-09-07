@@ -163,17 +163,17 @@ class GarbageCollectionTest  extends \PHPUnit_Framework_TestCase
 
         $this->pm->commit();
 
-        $this->assertEquals(0, $this->session->getDatabase()->getRefByManager()->getRefByInvalid());
+        $this->assertEquals(0, $this->session->getDatabase()->getRefManager()->getRefByInvalid());
 
         $parser = new Parser($this->session->getDatabase());
         $this->pm->delete($parser->parse('get Author'));
         $this->pm->commit();
 
-        $this->assertEquals(1, $this->session->getDatabase()->getRefByManager()->getRefByInvalid());
+        $this->assertEquals(1, $this->session->getDatabase()->getRefManager()->getRefByInvalid());
 
         $this->pm->cleanRefBy();
 
-        $this->assertEquals(0, $this->session->getDatabase()->getRefByManager()->getRefByInvalid());
+        $this->assertEquals(0, $this->session->getDatabase()->getRefManager()->getRefByInvalid());
     }
 
     public function testCountInvalidRefList() {
@@ -189,17 +189,17 @@ class GarbageCollectionTest  extends \PHPUnit_Framework_TestCase
 
         $this->pm->commit();
 
-        $this->assertEquals(0, $this->session->getDatabase()->getRefByManager()->getRefListInvalid());
+        $this->assertEquals(0, $this->session->getDatabase()->getRefManager()->getRefListInvalid());
 
         $parser = new Parser($this->session->getDatabase());
         $this->pm->delete($parser->parse('get Author'));
         $this->pm->commit();
 
-        $this->assertEquals(1, $this->session->getDatabase()->getRefByManager()->getRefListInvalid());
+        $this->assertEquals(1, $this->session->getDatabase()->getRefManager()->getRefListInvalid());
 
         $this->pm->cleanRefList();
 
-        $this->assertEquals(0, $this->session->getDatabase()->getRefByManager()->getRefListInvalid());
+        $this->assertEquals(0, $this->session->getDatabase()->getRefManager()->getRefListInvalid());
     }
 
     protected function createUnrefTestAuthor() {
@@ -234,11 +234,11 @@ class GarbageCollectionTest  extends \PHPUnit_Framework_TestCase
         $this->pm->commit();
 
 
-        $this->assertEquals(9, $this->session->getDatabase()->getRefByManager()->getRefByInvalid());
+        $this->assertEquals(9, $this->session->getDatabase()->getRefManager()->getRefByInvalid());
 
         $this->pm->delete($parser->parse('get Author name = "1"'));
         $this->pm->commit();
-        $this->assertEquals(0, $this->session->getDatabase()->getRefByManager()->getRefByInvalid());
+        $this->assertEquals(0, $this->session->getDatabase()->getRefManager()->getRefByInvalid());
 
 
     }
@@ -267,11 +267,11 @@ class GarbageCollectionTest  extends \PHPUnit_Framework_TestCase
         $this->pm->commit();
 
 
-        $this->assertEquals(9, $this->session->getDatabase()->getRefByManager()->getRefListInvalid());
+        $this->assertEquals(9, $this->session->getDatabase()->getRefManager()->getRefListInvalid());
 
         $this->pm->delete($parser->parse('get Author name = "1"'));
         $this->pm->commit();
-        $this->assertEquals(0, $this->session->getDatabase()->getRefByManager()->getRefListInvalid());
+        $this->assertEquals(0, $this->session->getDatabase()->getRefManager()->getRefListInvalid());
 
 
     }

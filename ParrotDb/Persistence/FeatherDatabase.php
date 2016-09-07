@@ -10,6 +10,7 @@ use \ParrotDb\Utils\PUtils;
 use \ParrotDb\Core\PException;
 use \ParrotDb\Core\PConfig;
 use \ParrotDb\Persistence\Feather\FeatherFileManager;
+use \ParrotDb\Persistence\RefInt\RefManager;
 
 /**
  * Implements a database based on Feather files.
@@ -31,7 +32,7 @@ class FeatherDatabase implements Database
     private $name;
     private $latestObjectId;
     private $config;
-    private $refByManager;
+    private $refManager;
 
 
     /**
@@ -44,7 +45,7 @@ class FeatherDatabase implements Database
         $this->constraintProcessor = new PXmlConstraintProcessor();
         $this->fileManager = new FeatherFileManager($path, $this->config);
         $this->path = $path;
-        $this->refByManager = new RefByManager($this);
+        $this->refManager = new RefManager($this);
 
         $this->name = substr(strrchr($path, '/'),1);
 
@@ -158,7 +159,7 @@ class FeatherDatabase implements Database
             }
 
             foreach ($resultSet as $pObj) {
-                $refBy = $this->refByManager->getRefBy($pObj->getObjectId());
+                $refBy = $this->refManager->getRefBy($pObj->getObjectId());
                 foreach ($refBy as $ref) {
                     if (!isset($oids[$ref])) {
                         throw new ReferentialIntegrityException(
@@ -172,7 +173,7 @@ class FeatherDatabase implements Database
 
         $this->fileManager->deleteArray($resultSet);
         foreach ($resultSet as $pObj) {
-            $this->refByManager->removeRefByRelations($pObj->getObjectId());
+            $this->refManager->removeRefByRelations($pObj->getObjectId());
         }
         $this->writeLatestObjectId();
         return $resultSet;
@@ -187,7 +188,7 @@ class FeatherDatabase implements Database
     public function deleteSingle($className, PObjectId $objectId)
     {
         $this->fileManager->delete($className, $objectId);
-        $this->refByManager->removeRefByRelations($objectId);
+        $this->refManager->removeRefByRelations($objectId);
     }
 
     /**
@@ -275,9 +276,9 @@ class FeatherDatabase implements Database
     }
 
 
-    public function getRefByManager()
+    public function getRefManager()
     {
-        return $this->refByManager;
+        return $this->refManager;
     }
 
     public function getPath() {

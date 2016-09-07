@@ -10,6 +10,7 @@ use \ParrotDb\Utils\PUtils;
 use \ParrotDb\Core\PException;
 use \ParrotDb\Core\PConfig;
 use \ParrotDb\Persistence\XML\XmlFileManager;
+use \ParrotDb\Persistence\RefInt\MemoryRefManager;
 
 /**
  * Implements a database based on XML files.
@@ -245,9 +246,9 @@ class XmlDatabase implements Database
         return $this->config;
     }
 
-    public function getRefByManager()
+    public function getRefManager()
     {
-        return new MemoryRefByManager();
+        return new MemoryRefManager();
     }
 
     public function getPath() {

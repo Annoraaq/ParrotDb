@@ -9,6 +9,7 @@ use \ParrotDb\Query\Constraint\PMemoryConstraintProcessor;
 use \ParrotDb\Utils\PUtils;
 use \ParrotDb\Core\PException;
 use \ParrotDb\Core\PConfig;
+use \ParrotDb\Persistence\RefInt\MemoryRefManager;
 
 /**
  * Description of PMemoryDatabase
@@ -215,9 +216,9 @@ class PMemoryDatabase implements Database {
         return $this->config;
     }
 
-    public function getRefByManager()
+    public function getRefManager()
     {
-        return new MemoryRefByManager();
+        return new MemoryRefManager();
     }
 
     public function getPath() {
