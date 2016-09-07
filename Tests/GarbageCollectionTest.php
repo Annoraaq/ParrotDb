@@ -115,16 +115,16 @@ class GarbageCollectionTest  extends \PHPUnit_Framework_TestCase
         $author = new \Author("Mr Satan", 53);
         $author->publication = new \Publication("Test");
         $author->allPublications = array();
-        
+
         $author->allPublications[] = new \Publication("Lord Of The Rings");
         $author->allPublications[] = new \Publication("Star Wars");
-        
+
         $author->orderedPublications[17] = new \Publication("Lord Of The Rings");
         $author->orderedPublications[21] = new \Publication("Star Wars");
         $author->nestedPublications = array();
-        
+
         $author->size = 175;
-        
+
         return $author;
     }
 
@@ -133,7 +133,9 @@ class GarbageCollectionTest  extends \PHPUnit_Framework_TestCase
 
         $author = $this->createTestAuthor();
 
+
         $this->pm->persist($author);
+
 
         $this->pm->commit();
 
@@ -147,8 +149,133 @@ class GarbageCollectionTest  extends \PHPUnit_Framework_TestCase
         $this->assertEquals(1, $this->session->getDatabase()->getFileManager()->countInvalid('Author'));
         $this->assertEquals(1, $this->session->getDatabase()->getFileManager()->getInvalid('Author'));
     }
-    
-    
+
+    public function testCountInvalidRefBy() {
+
+
+        $author = $this->createUnrefTestAuthor();
+        $author2 = $this->createUnrefTestAuthor();
+        $author2->setName("ToDelete");
+        $author->partner = $author2;
+
+        $this->pm->persist($author);
+        $this->pm->persist($author2);
+
+        $this->pm->commit();
+
+        $this->assertEquals(0, $this->session->getDatabase()->getRefByManager()->getRefByInvalid());
+
+        $parser = new Parser($this->session->getDatabase());
+        $this->pm->delete($parser->parse('get Author'));
+        $this->pm->commit();
+
+        $this->assertEquals(1, $this->session->getDatabase()->getRefByManager()->getRefByInvalid());
+
+        $this->pm->cleanRefBy();
+
+        $this->assertEquals(0, $this->session->getDatabase()->getRefByManager()->getRefByInvalid());
+    }
+
+    public function testCountInvalidRefList() {
+
+
+        $author = $this->createUnrefTestAuthor();
+        $author2 = $this->createUnrefTestAuthor();
+        $author2->setName("ToDelete");
+        $author->partner = $author2;
+
+        $this->pm->persist($author);
+        $this->pm->persist($author2);
+
+        $this->pm->commit();
+
+        $this->assertEquals(0, $this->session->getDatabase()->getRefByManager()->getRefListInvalid());
+
+        $parser = new Parser($this->session->getDatabase());
+        $this->pm->delete($parser->parse('get Author'));
+        $this->pm->commit();
+
+        $this->assertEquals(1, $this->session->getDatabase()->getRefByManager()->getRefListInvalid());
+
+        $this->pm->cleanRefList();
+
+        $this->assertEquals(0, $this->session->getDatabase()->getRefByManager()->getRefListInvalid());
+    }
+
+    protected function createUnrefTestAuthor() {
+        $author = new \Author("Mr Satan", 53);
+
+        $author->size = 175;
+
+        return $author;
+    }
+
+    public function testRefByGarbageCollectionLimit() {
+
+        $this->session->getDatabase()->getConfig()->setCleanThreshold(9);
+
+        $authors = [];
+
+        for ($i=0; $i<11; $i++) {
+            $authors[$i] = $this->createUnrefTestAuthor();
+            $authors[$i]->setName($i);
+            if ($i > 0) {
+                $authors[$i]->partner = $authors[$i - 1];
+            }
+            $this->pm->persist($authors[$i]);
+        }
+
+        $this->pm->commit();
+
+        $parser = new Parser($this->session->getDatabase());
+        for ($i=10; $i>1; $i--) {
+            $this->pm->delete($parser->parse('get Author name = "' . $i . '"'));
+        }
+        $this->pm->commit();
+
+
+        $this->assertEquals(9, $this->session->getDatabase()->getRefByManager()->getRefByInvalid());
+
+        $this->pm->delete($parser->parse('get Author name = "1"'));
+        $this->pm->commit();
+        $this->assertEquals(0, $this->session->getDatabase()->getRefByManager()->getRefByInvalid());
+
+
+    }
+
+    public function testRefListGarbageCollectionLimit() {
+
+        $this->session->getDatabase()->getConfig()->setCleanThreshold(9);
+
+        $authors = [];
+
+        for ($i=0; $i<11; $i++) {
+            $authors[$i] = $this->createUnrefTestAuthor();
+            $authors[$i]->setName($i);
+            if ($i > 0) {
+                $authors[$i]->partner = $authors[$i - 1];
+            }
+            $this->pm->persist($authors[$i]);
+        }
+
+        $this->pm->commit();
+
+        $parser = new Parser($this->session->getDatabase());
+        for ($i=10; $i>1; $i--) {
+            $this->pm->delete($parser->parse('get Author name = "' . $i . '"'));
+        }
+        $this->pm->commit();
+
+
+        $this->assertEquals(9, $this->session->getDatabase()->getRefByManager()->getRefListInvalid());
+
+        $this->pm->delete($parser->parse('get Author name = "1"'));
+        $this->pm->commit();
+        $this->assertEquals(0, $this->session->getDatabase()->getRefByManager()->getRefListInvalid());
+
+
+    }
+
     public function testGarbageCollection() {
         $author = $this->createTestAuthor();
         $author2 = $this->createTestAuthor();

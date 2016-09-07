@@ -77,7 +77,7 @@ class ObjectMapper {
      * @param PObjectId $oid
      * @return PObject
      */
-    public function createObject($object, PClass $pClass, PObjectId $oid) {
+    private function createObject($object, PClass $pClass, PObjectId $oid) {
         $pObject = new PObject($oid);
         $pObject->setClass($pClass);
         $this->addAttributes(
@@ -107,7 +107,6 @@ class ObjectMapper {
             if (PReflectionUtils::isUnaccessible($property)) {
                 $property->setAccessible(true);
             }
-
             
             if (!$this->session->getDatabase()->getConfig()->isIgnoreStatic() ||
                 !$property->isStatic()) {
@@ -115,9 +114,7 @@ class ObjectMapper {
                      $property->getName(), $this->createObjectValue($object, $property, $pObject)
                     );
             
-                }
-            
-
+            }
         }
 
         if ($reflector->getParentClass()) {
@@ -133,21 +130,24 @@ class ObjectMapper {
      * Returns a persistent-ready version of an object property.
      * 
      * @param mixed $object
-     * @param ReflectionProperty $property
+     * @param \ReflectionProperty $property
      * @return mixed
      */
-    private function createObjectValue($object, $property, PObject $parentObject) {
+    private function createObjectValue($object, \ReflectionProperty $property, PObject $parentObject) {
 
         $value = $property->getValue($object);
 
         if ($value === $object) {
             $value = $this->oIdToPHPId[spl_object_hash($object)]->getObjectId();
         } else if (PUtils::isObject($value)) {
+
             $value = $this->makePersistanceReady($value);
+
             $this->session->getDatabase()->getRefByManager()->addRefByRelation(
                 $parentObject->getObjectId(),
                 $value
             );
+
         } else if (PUtils::isArray($value)) {
             $value = $this->persistArray($value, $parentObject->getObjectId());
         } else if (PUtils::isString($value)) {
@@ -223,6 +223,7 @@ class ObjectMapper {
             $hasUsedObjectId = true;
             $id = $this->oIdToPHPId[spl_object_hash($object)]->getObjectId();
         }
+
         
         if (!$hasUsedObjectId) {
             $id = $this->session->assignObjectId();

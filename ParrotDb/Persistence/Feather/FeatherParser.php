@@ -3,6 +3,7 @@
 namespace ParrotDb\Persistence\Feather;
 
 use ParrotDb\Core\PConfig;
+use ParrotDb\Persistence\LowLevelParser;
 use ParrotDb\Utils\VirtualString;
 use ParrotDb\Utils\VirtualWriteString;
 use ParrotDb\ObjectModel\PObjectId;
@@ -16,18 +17,17 @@ use ParrotDb\Query\PResultSet;
  *
  * @author J. Baum
  */
-class FeatherParser
+class FeatherParser extends LowLevelParser
 {
 
-    private $virtualString;
     private $fileName;
     private $bufferManager;
-    private $objectStartPos;
     private $charactersRead;
     private $objectBuffer;
     private $resultAccumulator;
     private $constraintProcessor;
     private $config;
+
 
     /**
      * @param string $fileName
@@ -50,15 +50,6 @@ class FeatherParser
         $this->bufferManager = $bufferManager;
     }
 
-    /**
-     * @param $position
-     * @return bool
-     */
-    private function notFound($position)
-    {
-        return ($position < 0);
-    }
-
     private function getEndOfClassSection()
     {
 
@@ -75,15 +66,6 @@ class FeatherParser
         return $endOfClass;
     }
 
-    private function isEndOfFile($position)
-    {
-        return $this->notFound($this->virtualString->findFirst("[", $position));
-    }
-
-    private function isInvalid($objectId)
-    {
-        return (isset($objectId[0]) && $objectId[0] == "i");
-    }
 
     private function openVirtualString()
     {
@@ -127,37 +109,6 @@ class FeatherParser
         $this->virtualString->close();
 
         return $object;
-    }
-
-    private function getNextObjectId()
-    {
-        $oid = $this->virtualString->getNextInterval(
-            $this->objectStartPos, "[", ","
-        );
-
-        return $oid;
-    }
-
-    private function getNextObject()
-    {
-        return $this->virtualString->getNextInterval(
-                $this->objectStartPos, "[", "]"
-        );
-    }
-
-    private function getNextObjectPosition($idLen)
-    {
-        $lengthStart = $this->virtualString->findFirst(
-            ",", $this->objectStartPos
-        );
-        $len = $this->virtualString->getNextInterval($lengthStart, ",", ",");
-        
-        // $lenOfLen = mb_strlen($len) + $idLen + 1;
-        // :todo
-        // check why this is independend from the length of the object id
-        $lenOfLen = mb_strlen($len) + 1 + 1;
-        return
-            $lengthStart + $len + $lenOfLen;
     }
 
     /**
@@ -357,7 +308,7 @@ class FeatherParser
             $nextObjectId = $this->getNextObjectId();
             if (!$this->isInvalid($nextObjectId)
                 && $nextObjectId == $objectId->getId()) {
-                $this->virtualString->replace($this->objectStartPos + 2, "j");
+                $this->virtualString->replace($this->objectStartPos + 2);
                 $success = true;
                 break;
             } else {
@@ -413,7 +364,7 @@ class FeatherParser
             $nextObjectId = $this->getNextObjectId();
             if (!$this->isInvalid($nextObjectId)
                 && isset($oids[$nextObjectId])) {
-                $this->virtualString->replace($this->objectStartPos + 2, 'j');
+                $this->virtualString->replace($this->objectStartPos + 2);
                 unset($oids[$nextObjectId]);
                 $amount--;
                 $invalidCount++;

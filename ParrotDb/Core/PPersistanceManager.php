@@ -239,4 +239,18 @@ class PPersistanceManager
         return $this->session->getDatabase()->getFileManager()->clean($className);
     }
 
+    /**
+     * Cleans refby file, by removing invalid entries
+     */
+    public function cleanRefBy() {
+        $this->session->getDatabase()->getRefByManager()->cleanRefBy();
+    }
+
+
+    /**
+     * Cleans refby file, by removing invalid entries
+     */
+    public function cleanRefList() {
+        $this->session->getDatabase()->getRefByManager()->cleanRefList();
+    }
 }
