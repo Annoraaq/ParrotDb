@@ -37,7 +37,7 @@ class VirtualString
     public function open()
     {
         $this->file = fopen($this->fileName, 'r');
-        
+
         if (!$this->file) {
             throw new PException("Could not open file: " . $this->fileName);
         }
@@ -49,7 +49,7 @@ class VirtualString
      */
     public function get($pos)
     {
-        
+
         if (!$this->isInWindow($pos)) {
             $this->loadWindow($pos);
         }
@@ -60,7 +60,7 @@ class VirtualString
     /**
      * @param int $start
      * @param int $stop
-     * 
+     *
      * @return string Substring in the specified range
      */
     public function substr($start, $stop)
@@ -84,8 +84,9 @@ class VirtualString
     {
         return ($this->windowStart <= $pos && $this->windowEnd >= $pos);
     }
-    
-    public function getWindow() {
+
+    public function getWindow()
+    {
         return $this->window;
     }
 
@@ -96,106 +97,109 @@ class VirtualString
 
         if ($this->window) {
             $this->windowStart = $pos;
-            $this->windowEnd = $pos + strlen($this->window)-1;
+            $this->windowEnd = $pos + strlen($this->window) - 1;
         } else {
             $this->windowsStart = -1;
             $this->windowEnd = -1;
             throw new PException(
-            "The requested position exceeds the file length."
+                "The requested position exceeds the file length."
             );
         }
     }
-    
+
     /**
      * @param string $needle
      * @param int offset
-     * 
+     *
      * @return int Position of $needle; -1 if not found
      */
-    public function findFirst($needle, $offset = 0) {
+    public function findFirst($needle, $offset = 0)
+    {
         $length = mb_strlen($needle);
-        
+
         $pos = $offset;
-        
+
         // :performance
         // make this faster by not loading the whole substring for every position
         while (true) {
-           
-            $substr = $this->substr($pos, $pos+$length);
+
+            $substr = $this->substr($pos, $pos + $length);
 
             if (strlen($substr) < $length) {
                 return -1;
             }
-            
+
             if ($needle == $substr) {
                 return $pos;
             }
-            
+
             $pos++;
         }
 
     }
-    
+
     /**
      * @param string $needle
      * @param int offset
-     * 
+     *
      * @return int Position of $needle; -1 if not found
      */
-    public function findFirstUnescaped($needle, $offset = 0) {
+    public function findFirstUnescaped($needle, $offset = 0)
+    {
         $length = mb_strlen($needle);
-        
+
         $pos = $offset;
-        
+
         // :performance
         // make this faster by not loading the whole substring for every position
         while (true) {
-           
+
             if ($pos > 0) {
-               $first = $this->substr($pos-1, $pos);
-               $substr = $this->substr($pos, $pos+$length);
-               if ($first == '\\') {
-                   $pos++;
-                   continue;
-               }
+                $first = $this->substr($pos - 1, $pos);
+                $substr = $this->substr($pos, $pos + $length);
+                if ($first == '\\') {
+                    $pos++;
+                    continue;
+                }
             } else {
-                $substr = $this->substr($pos, $pos+$length);
+                $substr = $this->substr($pos, $pos + $length);
             }
 
             if (strlen($substr) < $length) {
                 return -1;
             }
-            
+
             if ($needle == $substr) {
                 return $pos;
             }
-            
+
             $pos++;
         }
 
     }
-    
+
     /**
      * @param int $start
      * @param string $leftBorder
      * @param string $rightBorder
-     * 
+     *
      * @return string The substring between the first occurrences
      * of $leftBorder and $rightBorder from $offset
-     * 
+     *
      * @throws PException
      */
-    public function getNextInterval($start, $leftBorder, $rightBorder) {
-        
+    public function getNextInterval($start, $leftBorder, $rightBorder)
+    {
+
         $leftPos = $this->findFirstUnescaped($leftBorder, $start);
-        $rightPos = $this->findFirstUnescaped($rightBorder, $leftPos+1);
-        
+        $rightPos = $this->findFirstUnescaped($rightBorder, $leftPos + 1);
+
         if ($leftPos == (-1) || $rightPos == (-1)) {
             throw new PException("Borders not found.");
         }
-        
-        return $this->substr($leftPos+1, $rightPos);
-        
+
+        return $this->substr($leftPos + 1, $rightPos);
+
     }
 
     /**
@@ -207,10 +211,11 @@ class VirtualString
      *
      * @throws PException
      */
-    public function hasNextInterval($start, $leftBorder, $rightBorder) {
+    public function hasNextInterval($start, $leftBorder, $rightBorder)
+    {
 
         $leftPos = $this->findFirstUnescaped($leftBorder, $start);
-        $rightPos = $this->findFirstUnescaped($rightBorder, $leftPos+1);
+        $rightPos = $this->findFirstUnescaped($rightBorder, $leftPos + 1);
 
         if ($leftPos == (-1) || $rightPos == (-1)) {
             return false;

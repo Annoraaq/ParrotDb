@@ -270,7 +270,7 @@ class FeatherFileManager
         
         $featherParser->setInvalid($oid);
     }
-//
+
 
     /**
      * @param $objects
@@ -386,6 +386,7 @@ class FeatherFileManager
      * Get invalid entries from header of database file
      *
      * @param $className
+     * @return int
      */
     public function getInvalid($className) {
         $featherParser = new FeatherParser($this->toFilePath($className), $this->config);
