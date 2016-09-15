@@ -9,7 +9,7 @@
 namespace ParrotDb\Datastructures;
 
 
-class VirtualArray
+class VirtualArray implements PArray
 {
     const INT_LENGTH = 10;
     const PAYLOAD_LENGTH = 10;
