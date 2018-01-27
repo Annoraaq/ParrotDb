@@ -22,7 +22,7 @@ class RefByParser extends RefParser
      * @param PObjectId $toDelete
      * @param $refList
      */
-    public function removeRelation(PObjectId $toDelete, $refList) {
+    public function removeRelationList(PObjectId $toDelete, $refList) {
 
         foreach ($refList as $referee) {
             $refBy = $this->loadRef((int) $referee);

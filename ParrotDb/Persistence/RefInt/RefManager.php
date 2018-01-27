@@ -48,7 +48,7 @@ class RefManager extends LowLevelParser
 
         $refList = $this->refListParser->loadRef($toDelete->getId());
 
-        $this->refByParser->removeRelation($toDelete, $refList);
+        $this->refByParser->removeRelationList($toDelete, $refList);
 
         $this->refListParser->removeRelation($toDelete);
     }
