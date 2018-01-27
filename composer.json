@@ -1,6 +1,7 @@
 {
   "name": "annoraaq/parrotdb",
   "description": "PHP object database",
+  "license": "MIT",
   "authors": [
     {
       "name": "Johannes Baum",
@@ -14,6 +15,7 @@
   "autoload": {
     "psr-4": {"ParrotDb\\": "ParrotDb/"}
   }
+  
 }
 
 
