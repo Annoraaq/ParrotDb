@@ -1,4 +1,13 @@
 # ParrotDb
-ParrotDb is an open source object database written in PHP and created for small applications. It can run on servers without installing any extra software besides a standard PHP environment.
+ParrotDb is an open source object database written in PHP.
 
 Please note this is a fun project and not intended for use in production. It is rather a proof of concept.
+
+# Installation
+```git clone https://github.com/Annoraaq/ParrotDb.git```
+```composer install```
+
+# Run tests
+```vendor/bin/phpunit```
+
+
