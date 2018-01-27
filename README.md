@@ -5,6 +5,7 @@ Please note this is a fun project and not intended for use in production. It is 
 
 # Installation
 ```git clone https://github.com/Annoraaq/ParrotDb.git```
+
 ```composer install```
 
 # Run tests
