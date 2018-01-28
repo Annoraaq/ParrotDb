@@ -51,12 +51,14 @@ $pm->commit();
 ## Select
 ```
 $constraint = $parser->parse('get Bird id = 42');
-$fetchedBird = $pm->query($constraint);
+$resultSet = $pm->query($constraint);
+$fetchedBird = $resultSet->first();
 ```
 ## Update
 ```
 $constraint = $parser->parse('get Bird id = 42');
-$fetchedBird = $pm->query($constraint);
+$resultSet = $pm->query($constraint);
+$fetchedBird = $resultSet->first();
 $fetchedBird->name = "Pidgeon";
 $pm->commit();
 ```
