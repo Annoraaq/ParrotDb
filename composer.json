@@ -9,7 +9,7 @@
     }
   ],
   "require": {
-    "phpunit/phpunit": "5.3.2"
+    "phpunit/phpunit": "5.6.3"
   },
 
   "autoload": {
